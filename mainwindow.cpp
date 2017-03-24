@@ -40,12 +40,14 @@ void MainWindow::slotShortcutF11()
     }
 }
 
-/* Slot handler for Ctrl + Q
+/* Slot handler for Ctrl + D
  * */
 void MainWindow::slotShortcutCtrlQ()
 {
-    /* 
-    * Quit!
+    /* For the treatment of a combination of keys Ctrl + D
+     * will do the Message Box ,
+     * which will signal that has been pressed a hotkey
      * */
     QApplication::quit();
 }
+
