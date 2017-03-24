@@ -5,13 +5,8 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    app.setWindowIcon(QIcon(QLatin1String("/data/netflix.svg")));
-    MainWindow w;
-   // QWebEngineView view;
-    //view.setUrl(QUrl(QStringLiteral("http://netflix.com")));
-    //view.showNormal();
-    w.show();
-    //view.destroy(1);
-    //setCentralWidget(view);
+    app.setWindowIcon(QIcon(QLatin1String("/data/netflix.svg")));// Set Location of Icon
+    MainWindow w;// Create the window
+    w.show();//Show the window
     return app.exec();
 }
