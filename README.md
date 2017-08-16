@@ -1,4 +1,4 @@
-# qtweb
+# qtwebflix
 A qt webengine program that I use for netflix
 
 
