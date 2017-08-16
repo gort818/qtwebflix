@@ -11,7 +11,7 @@ Instructions:
   2. Compile qtwebengine according to the link above
   3. Dowload the source
   4. cd into the folder
-  5. Type Make clean
+  5. Type make clean
   6. Type qmake -config release
   7. Type make
   8. Binary will be labeled netflix
