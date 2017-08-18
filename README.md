@@ -16,7 +16,6 @@ Instructions:
   7. Type make
   8. Binary will be labeled netflix
   9. Enjoy a standalone netflix player :) f11 for fullscreen and crtl + q to quit
-  Manually building:
     
   
 NOTE: This is just a reference for others not taking pull requests
