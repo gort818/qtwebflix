@@ -1,6 +1,11 @@
 # qtwebflix
 A qt webengine program that I use for netflix
 
+<b>Now available in the AUR</b>
+<html>https://aur.archlinux.org/packages/qtwebflix-git/<html>
+
+
+
 <b>Requirements-</b> qt5,qtwebegine(with proprietary codecs)
 You must compile qtwebengine with proprietary codecs.
 
@@ -18,4 +23,4 @@ Instructions:
   9. Enjoy a standalone netflix player :) f11 for fullscreen and crtl + q to quit
     
   
-NOTE: This is just a reference for others not taking pull requests
+
