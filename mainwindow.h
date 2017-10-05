@@ -27,7 +27,7 @@ private:
     Ui::MainWindow  *ui;
     QWebEngineView* webview;
     QShortcut       *keyF11;    // Entity of F11 hotkey
-    QShortcut       *keyCtrlQ;  // Entity of Ctrl + D hotkeys
+    QShortcut       *keyCtrlQ;  // Entity of Ctrl + Q hotkey
 };
 
 #endif // MAINWINDOW_H
