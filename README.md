@@ -22,5 +22,6 @@ Instructions:
   8. Binary will be labeled netflix
   9. Enjoy a standalone netflix player :) f11 for fullscreen and crtl + q to quit
     
-  
+    
+![alt text](https://i.imgur.com/6pkLVsr.png)    
 
