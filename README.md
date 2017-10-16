@@ -5,7 +5,10 @@ A qt webengine program to watch Netflix
 <html>https://aur.archlinux.org/packages/qtwebflix-git/</html>
 
 <b>Requirements-</b> qt5,qtwebegine(with proprietary codecs)
-You must compile qtwebengine with proprietary codecs.
+
+Arch users do not need to compile qtwebengine with proprietary codecs, the offical package has them enabled.
+
+Most others must compile qtwebengine with proprietary codecs.
 
 Read this <html>http://blog.qt.io/blog/2016/06/03/netflix-qt-webengine-5-7/</html>
 
