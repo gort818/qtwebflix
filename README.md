@@ -8,6 +8,12 @@ A qt webengine program to watch Netflix
 
 Arch users do not need to compile qtwebengine with proprietary codecs, the offical package has them enabled.
 
+Ubuntu 17.04/17.10 - qtwebengine comes with proprietary codecs
+
+       Grab the deb package from releases
+       chmod +x widevine.sh
+       sudo ./widevine.sh
+
 Most others must compile qtwebengine with proprietary codecs.
 
 Read this <html>http://blog.qt.io/blog/2016/06/03/netflix-qt-webengine-5-7/</html>
