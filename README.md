@@ -27,8 +27,11 @@ Instructions:
   6. Type qmake -config release
   7. Type make
   8. Binary will be labeled netflix
-  9. netflix --register-pepper-plugins="/usr/lib/qt/plugins/ppapi/libwidevinecdmadapter.so; application/x-ppapi-widevine-cdm"
-  10. Enjoy a standalone netflix player :) f11 for fullscreen and crtl + q to quit
+  9. Enjoy a standalone netflix player :) f11 for fullscreen and crtl + q to quit
+  
+Note:
+If you receiving an error loading netflix try
+netflix --register-pepper-plugins="/usr/lib/qt/plugins/ppapi/libwidevinecdmadapter.so; application/x-ppapi-widevine-cdm"
     
     
 ![alt text](https://i.imgur.com/6pkLVsr.png)    
