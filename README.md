@@ -31,7 +31,9 @@ Instructions:
   
 Note:
 If you receiving an error loading netflix try
-netflix --register-pepper-plugins="/usr/lib/qt/plugins/ppapi/libwidevinecdmadapter.so; application/x-ppapi-widevine-cdm"
+
+
+       netflix --register-pepper-plugins="/usr/lib/qt/plugins/ppapi/libwidevinecdmadapter.so; application/x-ppapi-widevine-cdm"
     
     
 ![alt text](https://i.imgur.com/6pkLVsr.png)    
