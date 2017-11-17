@@ -8,6 +8,7 @@ int main(int argc, char *argv[])
     app.setWindowIcon(QIcon(QLatin1String("netflix")));
     MainWindow w;
    
+    w.setWindowState(Qt::WindowMaximized);
     w.show();
     return app.exec();
 }
