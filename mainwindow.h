@@ -5,7 +5,8 @@
 #include <QShortcut>
 #include <QWebEngineView>
 #include <QMessageBox>
-
+#include <QSettings>
+#include <QByteArray>
 namespace Ui {
 class MainWindow;
 }
@@ -22,12 +23,22 @@ private slots:
     // slots for handlers of hotkeys
     void slotShortcutF11();
     void slotShortcutCtrlQ();
+protected:
+    // save window geometry
+    void closeEvent(QCloseEvent *);
+
+
 
 private:
     Ui::MainWindow  *ui;
     QWebEngineView* webview;
     QShortcut       *keyF11;    // Entity of F11 hotkey
-    QShortcut       *keyCtrlQ;  // Entity of Ctrl + Q hotkey
+    QShortcut       *keyCtrlQ;  // Entity of Ctrl + D hotkeys
+    QSettings *appSettings;
+    void writeSettings();
+    void readSettings();
+    void restore();
+
 };
 
 #endif // MAINWINDOW_H
