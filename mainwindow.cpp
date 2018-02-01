@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include <QWebEngineView>
 #include <QWebEngineSettings>
+#include <QWebEngineFullScreenRequest>
 #include <QSettings>
 #include <QWidget>
 MainWindow::MainWindow(QWidget *parent) :
@@ -13,7 +14,14 @@ MainWindow::MainWindow(QWidget *parent) :
     readSettings();
     webview = new QWebEngineView;
     ui->horizontalLayout->addWidget(webview);
-    webview->setUrl(QUrl(QStringLiteral("http://netflix.com")));
+    webview->setUrl(QUrl(QStringLiteral("https://netflix.com")));
+    webview->settings()->setAttribute(QWebEngineSettings::FullScreenSupportEnabled, true);
+    //connect handler for fullscreen press on video
+    connect(webview->page(),
+                &QWebEnginePage::fullScreenRequested,
+                this,
+                &MainWindow::fullScreenRequested);
+
     keyF11 = new QShortcut(this);   // Initialize the object
     keyF11->setKey(Qt::Key_F11);    // Set the key code
     // connect handler to keypress
@@ -92,4 +100,21 @@ void MainWindow::readSettings()
     // We use this so we can keep the purposes of the
     // different methods clear if we were to expand.
     restore();
+}
+
+void MainWindow::fullScreenRequested(QWebEngineFullScreenRequest request)
+{
+    //fullscreen on video players
+    if(request.toggleOn())
+    {
+        request.accept();
+        this->showFullScreen();
+
+     }
+    else
+    {
+        request.accept();
+        this->showNormal();
+    }
+
 }
