@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QShortcut>
 #include <QWebEngineView>
+#include <QWebEngineFullScreenRequest>
 #include <QMessageBox>
 #include <QSettings>
 #include <QByteArray>
@@ -23,6 +24,8 @@ private slots:
     // slots for handlers of hotkeys
     void slotShortcutF11();
     void slotShortcutCtrlQ();
+
+
 protected:
     // save window geometry
     void closeEvent(QCloseEvent *);
@@ -35,10 +38,10 @@ private:
     QShortcut       *keyF11;    // Entity of F11 hotkey
     QShortcut       *keyCtrlQ;  // Entity of Ctrl + D hotkeys
     QSettings *appSettings;
+    void fullScreenRequested(QWebEngineFullScreenRequest request);
     void writeSettings();
     void readSettings();
     void restore();
-
 };
 
 #endif // MAINWINDOW_H
