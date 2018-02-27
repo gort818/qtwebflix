@@ -121,7 +121,7 @@ void MainWindow::ShowContextMenu(const QPoint &pos) // this is a slot
   }
 
   else if (selectedItem->text() == "Netflix") {
-    // webview->setUrl(QUrl(QStringLiteral("https://netflix.com")));
+     webview->setUrl(QUrl(QStringLiteral("https://netflix.com")));
     myMenu.clear();
     myMenu.addAction("test");
   }
