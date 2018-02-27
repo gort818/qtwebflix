@@ -1,12 +1,14 @@
-#include <QWebEngineView>
 #include "mainwindow.h"
 #include <QApplication>
+#include <QLibraryInfo>
+#include <QWebEngineSettings>
+#include <QWebEngineView>
+#include <iostream>
+int main(int argc, char *argv[]) {
+  QApplication app(argc, argv);
+  //app.setWindowIcon(QIcon(QLatin1String("netflix-desktop")));
+  MainWindow w;
 
-int main(int argc, char *argv[])
-{
-    QApplication app(argc, argv);
-    app.setWindowIcon(QIcon(QLatin1String("netflix")));
-    MainWindow w;
-    w.show();
-    return app.exec();
+  w.show();
+  return app.exec();
 }
