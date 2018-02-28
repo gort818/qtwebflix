@@ -7,17 +7,23 @@
 #include <QWebEngineSettings>
 #include <QWebEngineView>
 #include <QWidget>
-
+#include <iostream>
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 
 {
+  QWebEngineSettings::globalSettings()->setAttribute(
+      QWebEngineSettings::PluginsEnabled, true);
   appSettings = new QSettings("Qtwebflix", "Save State", this);
   ui->setupUi(this);
   readSettings();
   webview = new QWebEngineView;
   ui->horizontalLayout->addWidget(webview);
-  webview->setUrl(QUrl(QStringLiteral("https://netflix.com")));
+  if (appSettings->value("site").toString() == "") {
+    webview->setUrl(QUrl(QStringLiteral("http://netflix.com")));
+  } else {
+    webview->setUrl(QUrl(appSettings->value("site").toString()));
+  }
   webview->settings()->setAttribute(
       QWebEngineSettings::FullScreenSupportEnabled, true);
 
@@ -73,9 +79,17 @@ void MainWindow::writeSettings() {
   // Write the values to disk in categories.
   appSettings->setValue("state/mainWindowState", saveState());
   appSettings->setValue("geometry/mainWindowGeometry", saveGeometry());
+  QString site = webview->url().toString();
+  appSettings->setValue("site", site);
+  qDebug() << " write settings:" << site;
 }
 
 void MainWindow::restore() {
+  // QSettings settings;
+  // webview->url().toString()=settings.value("site","https://netflix.com");
+  // QString aValue= appSettings->value("site").toString();
+  // qDebug()<<"setting:"<<aValue;
+  // webview->setUrl(QUrl(appSettings->value("site").toString()));
   QByteArray stateData =
       appSettings->value("state/mainWindowState").toByteArray();
 
@@ -133,8 +147,6 @@ void MainWindow::ShowContextMenu(const QPoint &pos) // this is a slot
 
   else if (selectedItem->text() == "Netflix") {
     webview->setUrl(QUrl(QStringLiteral("https://netflix.com")));
-    myMenu.clear();
-    myMenu.addAction("test");
   }
 
   else {
