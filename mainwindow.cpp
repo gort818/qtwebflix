@@ -108,6 +108,9 @@ void MainWindow::ShowContextMenu(const QPoint &pos) // this is a slot
   myMenu.addAction("Amazon Prime");
   myMenu.addAction("Netflix");
   myMenu.addAction("Hulu");
+  myMenu.addAction("CrunchyRoll");
+  myMenu.addAction("HBO");
+
   QAction *selectedItem = myMenu.exec(globalPos);
   if (selectedItem == NULL) {
     return;
@@ -120,8 +123,16 @@ void MainWindow::ShowContextMenu(const QPoint &pos) // this is a slot
     webview->setUrl(QUrl(QStringLiteral("https://hulu.com")));
   }
 
+  else if (selectedItem->text() == "CrunchyRoll") {
+    webview->setUrl(QUrl(QStringLiteral("https://crunchyroll.com")));
+  }
+
+  else if (selectedItem->text() == "HBO") {
+    webview->setUrl(QUrl(QStringLiteral("https://hbo.com")));
+  }
+
   else if (selectedItem->text() == "Netflix") {
-     webview->setUrl(QUrl(QStringLiteral("https://netflix.com")));
+    webview->setUrl(QUrl(QStringLiteral("https://netflix.com")));
     myMenu.clear();
     myMenu.addAction("test");
   }
