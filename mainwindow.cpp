@@ -7,7 +7,6 @@
 #include <QWebEngineSettings>
 #include <QWebEngineView>
 #include <QWidget>
-#include <iostream>
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 
@@ -85,11 +84,7 @@ void MainWindow::writeSettings() {
 }
 
 void MainWindow::restore() {
-  // QSettings settings;
-  // webview->url().toString()=settings.value("site","https://netflix.com");
-  // QString aValue= appSettings->value("site").toString();
-  // qDebug()<<"setting:"<<aValue;
-  // webview->setUrl(QUrl(appSettings->value("site").toString()));
+
   QByteArray stateData =
       appSettings->value("state/mainWindowState").toByteArray();
 
