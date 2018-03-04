@@ -1,6 +1,13 @@
 # qtwebflix
 A qt webengine program to watch Netflix
 
+<b>As of March 1st 2018:</b>
+
+       Now supports Amazon prime, HBO Go, Hulu, Crunchy Roll
+       Also suports fullscreen on the video player.
+Right click on the main window and there are shortcuts to these sites.
+
+
 <b>Now available in the AUR</b>
 <html>https://aur.archlinux.org/packages/qtwebflix-git/</html>
 
