@@ -10,6 +10,7 @@
 #include <QShortcut>
 #include <QWebEngineFullScreenRequest>
 #include <QWebEngineView>
+#include "urlrequestinterceptor.h"
 namespace Ui {
 class MainWindow;
 }
@@ -42,6 +43,7 @@ private:
   void writeSettings();
   void readSettings();
   void restore();
+  UrlRequestInterceptor *m_interceptor;
 };
 
 #endif // MAINWINDOW_H
