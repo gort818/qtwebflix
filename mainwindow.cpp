@@ -10,6 +10,7 @@
 #include <QWebEngineUrlRequestInterceptor>
 #include <QWebEngineProfile>
 #include "urlrequestinterceptor.h"
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -41,10 +42,18 @@ MainWindow::MainWindow(QWidget *parent)
   this->m_interceptor = new UrlRequestInterceptor;
   this->webview->page()->profile()->setRequestInterceptor(this->m_interceptor);
 
+//Check if user is using arm processor(Raspberry pi)
+  QString UserAgent = this->webview->page()->profile()->httpUserAgent();
+  qDebug()<< UserAgent;
+  qDebug()<< UserAgent.contains("Linux arm");
+  if ( UserAgent.contains("Linux arm") )
+  {
+      qDebug()<<"Changing user agent for raspberry pi users";
+      QString UserAgent = "Mozilla/5.0 (X11; CrOS armv7l 6946.86.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.91 Safari/537.36";
+      this->webview->page()->profile()->setHttpUserAgent(UserAgent);
+  }
 
 
-  //QString UserAgent = "";
-  //this->webview->page()->profile()->setHttpUserAgent(UserAgent);
 
 
   // key short cuts
