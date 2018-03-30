@@ -7,6 +7,10 @@
 #include <QWebEngineSettings>
 #include <QWebEngineView>
 #include <QWidget>
+#include <QWebEngineUrlRequestInterceptor>
+#include <QWebEngineProfile>
+#include "urlrequestinterceptor.h"
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 
@@ -17,9 +21,13 @@ MainWindow::MainWindow(QWidget *parent)
   ui->setupUi(this);
   readSettings();
   webview = new QWebEngineView;
+  //RequestInterceptor interceptor;
   ui->horizontalLayout->addWidget(webview);
+  UrlRequestInterceptor interceptor;
+
   if (appSettings->value("site").toString() == "") {
     webview->setUrl(QUrl(QStringLiteral("http://netflix.com")));
+
   } else {
     webview->setUrl(QUrl(appSettings->value("site").toString()));
   }
@@ -29,6 +37,15 @@ MainWindow::MainWindow(QWidget *parent)
   // connect handler for fullscreen press on video
   connect(webview->page(), &QWebEnginePage::fullScreenRequested, this,
           &MainWindow::fullScreenRequested);
+//webview->page()->profile()->setRequestInterceptor(&interceptor);
+  this->m_interceptor = new UrlRequestInterceptor;
+  this->webview->page()->profile()->setRequestInterceptor(this->m_interceptor);
+
+
+
+  //QString UserAgent = "";
+  //this->webview->page()->profile()->setHttpUserAgent(UserAgent);
+
 
   // key short cuts
   keyF11 = new QShortcut(this); // Initialize the object
@@ -47,6 +64,7 @@ MainWindow::MainWindow(QWidget *parent)
   webview->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(webview, SIGNAL(customContextMenuRequested(const QPoint &)), this,
           SLOT(ShowContextMenu(const QPoint &)));
+
 }
 
 MainWindow::~MainWindow() { delete ui; }
@@ -141,7 +159,9 @@ void MainWindow::ShowContextMenu(const QPoint &pos) // this is a slot
   }
 
   else if (selectedItem->text() == "Netflix") {
+    //webview->PagesetUrl(QUrl(QStringLiteral("https://netflix.com")));
     webview->setUrl(QUrl(QStringLiteral("https://netflix.com")));
+
   }
 
   else {
