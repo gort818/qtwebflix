@@ -1,16 +1,16 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "urlrequestinterceptor.h"
 #include <QContextMenuEvent>
+#include <QDebug>
 #include <QMenu>
 #include <QSettings>
 #include <QWebEngineFullScreenRequest>
+#include <QWebEngineProfile>
 #include <QWebEngineSettings>
+#include <QWebEngineUrlRequestInterceptor>
 #include <QWebEngineView>
 #include <QWidget>
-#include <QWebEngineUrlRequestInterceptor>
-#include <QWebEngineProfile>
-#include "urlrequestinterceptor.h"
-#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -19,12 +19,12 @@ MainWindow::MainWindow(QWidget *parent)
   QWebEngineSettings::globalSettings()->setAttribute(
       QWebEngineSettings::PluginsEnabled, true);
   appSettings = new QSettings("Qtwebflix", "Save State", this);
+
   ui->setupUi(this);
+  this->setWindowTitle("QtWebFlix");
   readSettings();
   webview = new QWebEngineView;
-  //RequestInterceptor interceptor;
   ui->horizontalLayout->addWidget(webview);
-  UrlRequestInterceptor interceptor;
 
   if (appSettings->value("site").toString() == "") {
     webview->setUrl(QUrl(QStringLiteral("http://netflix.com")));
@@ -38,23 +38,22 @@ MainWindow::MainWindow(QWidget *parent)
   // connect handler for fullscreen press on video
   connect(webview->page(), &QWebEnginePage::fullScreenRequested, this,
           &MainWindow::fullScreenRequested);
-//webview->page()->profile()->setRequestInterceptor(&interceptor);
+
+
   this->m_interceptor = new UrlRequestInterceptor;
   this->webview->page()->profile()->setRequestInterceptor(this->m_interceptor);
 
-//Check if user is using arm processor(Raspberry pi)
+  // Check if user is using arm processor(Raspberry pi)
   QString UserAgent = this->webview->page()->profile()->httpUserAgent();
-  qDebug()<< UserAgent;
-  qDebug()<< UserAgent.contains("Linux arm");
-  if ( UserAgent.contains("Linux arm") )
-  {
-      qDebug()<<"Changing user agent for raspberry pi users";
-      QString UserAgent = "Mozilla/5.0 (X11; CrOS armv7l 6946.86.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.91 Safari/537.36";
-      this->webview->page()->profile()->setHttpUserAgent(UserAgent);
+  qDebug() << UserAgent;
+  qDebug() << UserAgent.contains("Linux arm");
+  if (UserAgent.contains("Linux arm")) {
+    qDebug() << "Changing user agent for raspberry pi users";
+    QString UserAgent = "Mozilla/5.0 (X11; CrOS armv7l 6946.86.0) "
+                        "AppleWebKit/537.36 (KHTML, like Gecko) "
+                        "Chrome/51.0.2704.91 Safari/537.36";
+    this->webview->page()->profile()->setHttpUserAgent(UserAgent);
   }
-
-
-
 
   // key short cuts
   keyF11 = new QShortcut(this); // Initialize the object
@@ -73,7 +72,6 @@ MainWindow::MainWindow(QWidget *parent)
   webview->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(webview, SIGNAL(customContextMenuRequested(const QPoint &)), this,
           SLOT(ShowContextMenu(const QPoint &)));
-
 }
 
 MainWindow::~MainWindow() { delete ui; }
@@ -139,38 +137,29 @@ void MainWindow::fullScreenRequested(QWebEngineFullScreenRequest request) {
 void MainWindow::ShowContextMenu(const QPoint &pos) // this is a slot
 {
   QPoint globalPos = webview->mapToGlobal(pos);
+  provSettings = new QSettings("Qtwebflix", "Providers", this);
+  provSettings->beginGroup("providers");
+  provSettings->setValue("netflix", "http://netflix.com");
+  QString test = provSettings->value("netflix").toString();
+  qDebug() << "test" << test;
+
+  QStringList keys = provSettings->allKeys();
 
   QMenu myMenu;
-  myMenu.addAction("Amazon Prime");
-  myMenu.addAction("Netflix");
-  myMenu.addAction("Hulu");
-  myMenu.addAction("CrunchyRoll");
-  myMenu.addAction("HBO");
+  for (const auto &i : keys) {
+    qDebug() << "keys" << i;
+    myMenu.addAction(i);
+  }
 
   QAction *selectedItem = myMenu.exec(globalPos);
+
   if (selectedItem == NULL) {
     return;
-  } else if (selectedItem->text() == "Amazon Prime") {
-    webview->setUrl(QUrl(QStringLiteral(
-        "https://www.amazon.com/Amazon-Video/b/?&node=2858778011")));
-  }
-
-  else if (selectedItem->text() == "Hulu") {
-    webview->setUrl(QUrl(QStringLiteral("https://hulu.com")));
-  }
-
-  else if (selectedItem->text() == "CrunchyRoll") {
-    webview->setUrl(QUrl(QStringLiteral("https://crunchyroll.com")));
-  }
-
-  else if (selectedItem->text() == "HBO") {
-    webview->setUrl(QUrl(QStringLiteral("https://hbo.com")));
-  }
-
-  else if (selectedItem->text() == "Netflix") {
-    //webview->PagesetUrl(QUrl(QStringLiteral("https://netflix.com")));
-    webview->setUrl(QUrl(QStringLiteral("https://netflix.com")));
-
+  } else if (selectedItem) {
+    QString url = provSettings->value(selectedItem->text()).toString();
+    qDebug() << "URL is :" << url;
+    webview->setUrl(QUrl(url));
+    provSettings->endGroup();
   }
 
   else {

@@ -39,6 +39,7 @@ private:
   QShortcut *keyF11;   // Entity of F11 hotkey
   QShortcut *keyCtrlQ; // Entity of Ctrl + D hotkeys
   QSettings *appSettings;
+  QSettings *provSettings;
   void fullScreenRequested(QWebEngineFullScreenRequest request);
   void writeSettings();
   void readSettings();
