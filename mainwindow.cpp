@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QMenu>
 #include <QSettings>
+#include <QStandardPaths>
 #include <QWebEngineFullScreenRequest>
 #include <QWebEngineProfile>
 #include <QWebEngineSettings>
@@ -38,7 +39,6 @@ MainWindow::MainWindow(QWidget *parent)
   // connect handler for fullscreen press on video
   connect(webview->page(), &QWebEnginePage::fullScreenRequested, this,
           &MainWindow::fullScreenRequested);
-
 
   this->m_interceptor = new UrlRequestInterceptor;
   this->webview->page()->profile()->setRequestInterceptor(this->m_interceptor);
@@ -136,19 +136,31 @@ void MainWindow::fullScreenRequested(QWebEngineFullScreenRequest request) {
 
 void MainWindow::ShowContextMenu(const QPoint &pos) // this is a slot
 {
+
   QPoint globalPos = webview->mapToGlobal(pos);
   provSettings = new QSettings("Qtwebflix", "Providers", this);
+  provSettings->setIniCodec("UTF-8");
   provSettings->beginGroup("providers");
   provSettings->setValue("netflix", "http://netflix.com");
   QString test = provSettings->value("netflix").toString();
-  qDebug() << "test" << test;
-
+  provSettings->sync();
   QStringList keys = provSettings->allKeys();
 
   QMenu myMenu;
   for (const auto &i : keys) {
     qDebug() << "keys" << i;
-    myMenu.addAction(i);
+    if (!i.startsWith("#")) {
+      myMenu.addAction(i);
+      myMenu.addSeparator();
+    } else {
+      QFile conf(provSettings->fileName());
+      conf.open(QIODevice::ReadWrite | QIODevice::Text);
+      QByteArray fileContent = conf.readAll();
+      fileContent.replace(QString("\%23"), "#");
+      conf.seek(0);
+      conf.write(fileContent);
+      conf.close();
+    }
   }
 
   QAction *selectedItem = myMenu.exec(globalPos);
