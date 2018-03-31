@@ -4,7 +4,7 @@ A qt webengine program to watch Netflix
 <b>As of March 30th 2018:</b>
 
        Now supports Netflix in 1080P.
-       Also supports adding other streaming services go to ~/.config/qtwebflix/providers.conf and add your service
+       Also supports adding other streaming services go to ~/.config/Qtwebflix/Providers.conf and add your service
        ex. netflix=https://netflix.com
        To use these other services right clicking will bring up a context menu with all available options.
 
