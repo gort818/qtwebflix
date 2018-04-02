@@ -37,10 +37,10 @@ Instructions:
   9. Enjoy a standalone netflix player :) f11 for fullscreen and crtl + q to quit
   
 Note:
-If you receiving an error loading netflix try
+If you receiving an error loading qtwebflix try
 
 
-       netflix --register-pepper-plugins="/usr/lib/qt/plugins/ppapi/libwidevinecdmadapter.so; application/x-ppapi-widevine-cdm"
+       qtwebflix --register-pepper-plugins="/usr/lib/qt/plugins/ppapi/libwidevinecdmadapter.so; application/x-ppapi-widevine-cdm"
     
     
 ![alt text](https://i.imgur.com/6pkLVsr.png)    
