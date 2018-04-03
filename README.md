@@ -20,6 +20,7 @@ Ubuntu 17.04/17.10 - qtwebengine comes with proprietary codecs
        Grab the deb package from releases
        chmod +x widevine.sh
        sudo ./widevine.sh
+       to uninstall sudo ./widevine.sh uninstall
 
 Most others must compile qtwebengine with proprietary codecs.
 
