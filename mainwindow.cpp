@@ -141,25 +141,26 @@ void MainWindow::ShowContextMenu(const QPoint &pos) // this is a slot
   provSettings = new QSettings("Qtwebflix", "Providers", this);
   provSettings->setIniCodec("UTF-8");
   provSettings->beginGroup("providers");
-  provSettings->setValue("netflix", "http://netflix.com");
-  QString test = provSettings->value("netflix").toString();
-  provSettings->sync();
+  QString conf(provSettings->fileName());
+
+  // Check if config file exists,if not create a default key.
+  if (!QFile::exists(conf))
+
+  {
+    qDebug() << "Config file does not exist, creating default";
+    provSettings->setValue("netflix", "http://netflix.com");
+    provSettings->sync();
+  }
+
   QStringList keys = provSettings->allKeys();
 
   QMenu myMenu;
   for (const auto &i : keys) {
-    qDebug() << "keys" << i;
+    // qDebug() << "keys" << i;
+
     if (!i.startsWith("#")) {
       myMenu.addAction(i);
       myMenu.addSeparator();
-    } else {
-      QFile conf(provSettings->fileName());
-      conf.open(QIODevice::ReadWrite | QIODevice::Text);
-      QByteArray fileContent = conf.readAll();
-      fileContent.replace(QString("\%23"), "#");
-      conf.seek(0);
-      conf.write(fileContent);
-      conf.close();
     }
   }
 
