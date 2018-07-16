@@ -15,7 +15,7 @@ A qt webengine program to watch Netflix
 
 Arch users do not need to compile qtwebengine with proprietary codecs, the offical package has them enabled.
 
-Ubuntu 17.04/17.10 - qtwebengine comes with proprietary codecs
+Ubuntu 17.04/17.10/18.04 and Linux Mint 19 - qtwebengine comes with proprietary codecs
 
        Grab the deb package from releases
        chmod +x widevine.sh
@@ -34,7 +34,7 @@ Instructions:
   5. Type make clean
   6. Type qmake -config release
   7. Type make
-  8. Binary will be labeled netflix
+  8. Binary will be labeled qtwebflix
   9. Enjoy a standalone netflix player :) f11 for fullscreen and crtl + q to quit
   
 Note:
