@@ -40,8 +40,9 @@ MainWindow::MainWindow(QWidget *parent)
   connect(webview->page(), &QWebEnginePage::fullScreenRequested, this,
           &MainWindow::fullScreenRequested);
 
-  this->m_interceptor = new UrlRequestInterceptor;
-  this->webview->page()->profile()->setRequestInterceptor(this->m_interceptor);
+        //testing 1080p uncomment the following two lines to enable it.
+  //this->m_interceptor = new UrlRequestInterceptor;
+  //this->webview->page()->profile()->setRequestInterceptor(this->m_interceptor);
 
   // Check if user is using arm processor(Raspberry pi)
   QString UserAgent = this->webview->page()->profile()->httpUserAgent();
