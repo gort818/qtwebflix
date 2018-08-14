@@ -169,7 +169,7 @@ void MainWindow::ShowContextMenu(const QPoint &pos) // this is a slot
 
   QAction *selectedItem = myMenu.exec(globalPos);
 
-  if (selectedItem == NULL) {
+  if (selectedItem == nullptr) {
     return;
   } else if (selectedItem) {
     QString url = provSettings->value(selectedItem->text()).toString();
