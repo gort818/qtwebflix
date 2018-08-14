@@ -35,6 +35,11 @@ MainWindow::MainWindow(QWidget *parent)
   }
   webview->settings()->setAttribute(
       QWebEngineSettings::FullScreenSupportEnabled, true);
+// Check for QT if equal or greater than 5.10 hide scrollbars        
+#if QT_VERSION >= 0x050100
+ webview->settings()->setAttribute(
+      QWebEngineSettings::ShowScrollBars, false);
+#endif
 
   // connect handler for fullscreen press on video
   connect(webview->page(), &QWebEnginePage::fullScreenRequested, this,
