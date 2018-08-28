@@ -36,7 +36,7 @@ MainWindow::MainWindow(QWidget *parent)
   webview->settings()->setAttribute(
       QWebEngineSettings::FullScreenSupportEnabled, true);
 // Check for QT if equal or greater than 5.10 hide scrollbars        
-#if QT_VERSION >= 0x050100
+#ifdef HAS_SCROLLBAR
  webview->settings()->setAttribute(
       QWebEngineSettings::ShowScrollBars, false);
 #endif
