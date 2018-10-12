@@ -12,6 +12,7 @@
 #include <QWebEngineUrlRequestInterceptor>
 #include <QWebEngineView>
 #include <QWidget>
+#define HAS_SCROLLBAR
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
