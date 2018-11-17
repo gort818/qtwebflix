@@ -18,6 +18,6 @@ void UrlRequestInterceptor::interceptRequest(QWebEngineUrlRequestInfo &info)
         {
             qDebug() << "Netflix Player detected! Injecting Netflix 1080p Unlocker...";
             //info.redirect(QUrl("https://rawgit.com/gort818/netflix-1080p/master/cadmium-playercore-6.0009.325.011-1080p.js"));
-            info.redirect(QUrl("https://rawcdn.githack.com/gort818/netflix-1080p/9b99454479a9c4725d22a0f0d74c5f8989f9cf8f/cadmium-playercore-6.0009.457.011-1080p.js"));
+            info.redirect(QUrl("https://rawcdn.githack.com/gort818/netflix-1080p/a225d19994546396f252a169704e2bde43e5ff7d/playercore-481.js"));
     }
 }
