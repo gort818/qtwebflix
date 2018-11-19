@@ -1,6 +1,13 @@
 # qtwebflix
 A qt webengine program to watch Netflix
 
+<b> HBO Now and HBO GO are currently not working </b>
+
+ Current workarounds :
+ 
+ 1. If you have amazon you can add your HBO service.
+[instructions](https://help.hbogo.com/hc/en-us/articles/204872107-Watching-HBO-on-Amazon-Prime-Video-Channels)
+
 <b>As of March 30th 2018:</b>
 
        Now supports Netflix in 1080P.
