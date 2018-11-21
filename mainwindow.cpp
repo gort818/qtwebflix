@@ -12,7 +12,6 @@
 #include <QWebEngineUrlRequestInterceptor>
 #include <QWebEngineView>
 #include <QWidget>
-#define HAS_SCROLLBAR
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -37,7 +36,7 @@ MainWindow::MainWindow(QWidget *parent)
   webview->settings()->setAttribute(
       QWebEngineSettings::FullScreenSupportEnabled, true);
 // Check for QT if equal or greater than 5.10 hide scrollbars        
-#ifdef HAS_SCROLLBAR
+#if HAS_SCROLLBAR
  webview->settings()->setAttribute(
       QWebEngineSettings::ShowScrollBars, false);
 #endif
