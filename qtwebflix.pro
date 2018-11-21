@@ -17,7 +17,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 #Check  version of qt to enable hide scrollbars available in qt 5.10+
 equals(QT_MAJOR_VERSION, 5):!lessThan(QT_MINOR_VERSION, 10) {
-   defines += HAS_SCROLLBAR
+   DEFINES += HAS_SCROLLBAR
 } else {
   message(Qt $$QT_VERSION ScrollBars not support in this version.)
 }
