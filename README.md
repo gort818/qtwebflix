@@ -30,7 +30,7 @@ Read this <html>http://blog.qt.io/blog/2016/06/03/netflix-qt-webengine-5-7/</htm
 <h1>Instructions:</h1>
 
 
-<b>Arch and derivates</b>
+<b>Arch and derivatives</b>
 
    Refer the aur package <html>https://aur.archlinux.org/packages/qtwebflix-git/</html>
       
