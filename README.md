@@ -27,15 +27,15 @@ If your distro does not compile qtwebengine with proprietary codecs.
 
 Read this <html>http://blog.qt.io/blog/2016/06/03/netflix-qt-webengine-5-7/</html>
 
-Instructions:
+<h1>Instructions:</h1>
 
 
-Arch and derivates
+<b>Arch and derivates</b>
 
    Refer the aur package <html>https://aur.archlinux.org/packages/qtwebflix-git/</html>
       
        
- Ubuntu 17.04/17.10/18.04 and Linux Mint 19 - qtwebengine comes with proprietary codecs
+ <b>Ubuntu 17.04/17.10/18.04 and Linux Mint 19 - qtwebengine comes with proprietary codecs</b>
 
        ~Grab the deb package from releases~
        chmod +x widevine.sh
@@ -43,7 +43,7 @@ Arch and derivates
        to uninstall sudo ./widevine.sh uninstall
        Follow instructions for compiling manually
        
- Ubuntu 18.10
+<b> Ubuntu 18.10</b>
  
        ~Grab the deb package from releases~
        chmod +x widevine-18.10.sh
@@ -51,7 +51,7 @@ Arch and derivates
        to uninstall sudo ./widevine-18.10.sh uninstall      
        Follow instructions for compiling manually
        
-Compile manually
+<b>Compile manually</b>
   1. Install qt5
   2. Compile qtwebengine according to the link above
   3. Dowload the source
