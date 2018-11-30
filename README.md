@@ -18,24 +18,40 @@ A qt webengine program to watch Netflix
        To use these other services right clicking will bring up a context menu with all available options.
 
 <b>Now available in the AUR</b>
-<html>https://aur.archlinux.org/packages/qtwebflix-git/</html>
 
-<b>Requirements-</b> qt5,qtwebegine(with proprietary codecs)
 
-Arch users do not need to compile qtwebengine with proprietary codecs, the offical package has them enabled.
+<b>Requirements-</b> qt5,qtwebegine(with proprietary codecs), widvine libs
 
-Ubuntu 17.04/17.10/18.04 and Linux Mint 19 - qtwebengine comes with proprietary codecs
 
-       Grab the deb package from releases
-       chmod +x widevine.sh
-       sudo ./widevine.sh
-       to uninstall sudo ./widevine.sh uninstall
-
-Most others must compile qtwebengine with proprietary codecs.
+If your distro does not compile qtwebengine with proprietary codecs.
 
 Read this <html>http://blog.qt.io/blog/2016/06/03/netflix-qt-webengine-5-7/</html>
 
 Instructions:
+
+
+Arch and derivates
+
+      <html>https://aur.archlinux.org/packages/qtwebflix-git/</html>
+      
+       
+ Ubuntu 17.04/17.10/18.04 and Linux Mint 19 - qtwebengine comes with proprietary codecs
+
+       ~Grab the deb package from releases~
+       chmod +x widevine.sh
+       sudo ./widevine.sh
+       to uninstall sudo ./widevine.sh uninstall
+       Follow instructions for compiling manually
+       
+ Ubuntu 18.10
+ 
+       ~Grab the deb package from releases~
+       chmod +x widevine-18.10.sh
+       sudo ./widevine-18.10.sh
+       to uninstall sudo ./widevine-18.10.sh uninstall      
+       Follow instructions for compiling manually
+       
+Compile manually
   1. Install qt5
   2. Compile qtwebengine according to the link above
   3. Dowload the source
