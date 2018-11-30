@@ -1,14 +1,8 @@
 # qtwebflix
-A qt webengine program to watch Netflix
+A qt webengine program to watch Netflix and other streaming services
 
-<b> HBO Now and HBO GO are currently not working </b>
 
- Current workarounds :
- 
- 1. If you have amazon you can add your HBO service.
-[instructions](https://help.hbogo.com/hc/en-us/articles/204872107-Watching-HBO-on-Amazon-Prime-Video-Channels)
-
-![alt text](https://i.imgur.com/8f7lsED.png)
+![alt text](https://i.imgur.com/jrc7vV9.jpg) 
 
 <b>As of March 30th 2018:</b>
 
@@ -69,5 +63,14 @@ If you receiving an error loading qtwebflix try
        qtwebflix --register-pepper-plugins="/usr/lib/qt/plugins/ppapi/libwidevinecdmadapter.so; application/x-ppapi-widevine-cdm"
     
     
-![alt text](https://i.imgur.com/6pkLVsr.png)    
+   
+<b> HBO Now and HBO GO are currently not working </b>
+
+ Current workarounds :
+ 
+ 1. If you have amazon you can add your HBO service.
+[instructions](https://help.hbogo.com/hc/en-us/articles/204872107-Watching-HBO-on-Amazon-Prime-Video-Channels)
+
+![alt text](https://i.imgur.com/8f7lsED.png)
+
 
