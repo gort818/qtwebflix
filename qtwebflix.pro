@@ -19,7 +19,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 equals(QT_MAJOR_VERSION, 5):!lessThan(QT_MINOR_VERSION, 10) {
    DEFINES += HAS_SCROLLBAR
 } else {
-  message(Qt $$QT_VERSION ScrollBars not support in this version.)
+  message(Qt $$QT_VERSION ScrollBars not supported in this version.)
 }
 
 
