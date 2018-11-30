@@ -32,7 +32,7 @@ Instructions:
 
 Arch and derivates
 
-      <html>https://aur.archlinux.org/packages/qtwebflix-git/</html>
+   Refer the aur package <html>https://aur.archlinux.org/packages/qtwebflix-git/</html>
       
        
  Ubuntu 17.04/17.10/18.04 and Linux Mint 19 - qtwebengine comes with proprietary codecs
