@@ -31,7 +31,7 @@ Read this <html>http://blog.qt.io/blog/2016/06/03/netflix-qt-webengine-5-7/</htm
        
  <b>Ubuntu 17.04/17.10/18.04 and Linux Mint 19 - qtwebengine comes with proprietary codecs</b>
 
-       ~Grab the deb package from releases~
+       ~~Grab the deb package from releases~~
        chmod +x widevine.sh
        sudo ./widevine.sh
        to uninstall sudo ./widevine.sh uninstall
@@ -39,7 +39,7 @@ Read this <html>http://blog.qt.io/blog/2016/06/03/netflix-qt-webengine-5-7/</htm
        
 <b> Ubuntu 18.10</b>
  
-       ~Grab the deb package from releases~
+       ~~Grab the deb package from releases~~
        chmod +x widevine-18.10.sh
        sudo ./widevine-18.10.sh
        to uninstall sudo ./widevine-18.10.sh uninstall      
