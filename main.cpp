@@ -29,7 +29,10 @@ int main(int argc, char *argv[]) {
   QCommandLineOption userAgent(
       QStringList() << "u"
                     << "useragent",
-      QCoreApplication::translate("main", "change useragent"),
+      QCoreApplication::translate(
+          "main", "change useragent eg. \"Mozilla/5.0 (Windows NT 10.0; WOW64) "
+                  "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.2526.73 "
+                  "Safari/537.36\""),
       QCoreApplication::translate("main", "useragent"));
   parser.addOption(userAgent);
 
