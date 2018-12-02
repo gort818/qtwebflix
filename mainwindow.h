@@ -19,9 +19,10 @@ class MainWindow : public QMainWindow {
   Q_OBJECT
 
 public:
-  explicit MainWindow(QWidget *parent = 0);
+  explicit MainWindow(QWidget *parent = nullptr);
   void set_provider(QString);
   void set_useragent(QString);
+  void parseCommand(QCommandLineParser &);
   ~MainWindow();
   // QAction amazon();
 

@@ -10,56 +10,12 @@
 int main(int argc, char *argv[]) {
   QApplication app(argc, argv);
 
-  QCoreApplication::setApplicationName("qtwebflix");
-  QCoreApplication::setApplicationVersion("n/a");
-
   QCommandLineParser parser;
-  parser.setApplicationDescription("Qtwebflix Help");
-  parser.addHelpOption();
-  parser.addVersionOption();
 
-  QCommandLineOption setProvider(
-      QStringList() << "p"
-                    << "provider",
-      QCoreApplication::translate("main",
-                                  "Set content provider eg. netflix.com"),
-      QCoreApplication::translate("main", "provider"));
-  parser.addOption(setProvider);
-
-  QCommandLineOption userAgent(
-      QStringList() << "u"
-                    << "useragent",
-      QCoreApplication::translate(
-          "main", "change useragent eg. \"Mozilla/5.0 (Windows NT 10.0; WOW64) "
-                  "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.2526.73 "
-                  "Safari/537.36\""),
-      QCoreApplication::translate("main", "useragent"));
-  parser.addOption(userAgent);
-
-  QString widevine = "--register-pepper-plugins";
-
-  QStringList args;
-
-  args = qApp->arguments();
-  // qDebug()<<args;
-  args.replaceInStrings("--register-pepper-plugins", "");
-
-  parser.process(args);
-  // const QStringList args = parser.positionalArguments();
-
-  QString provider = parser.value(setProvider);
-  QString useragent = parser.value(userAgent);
   MainWindow w;
 
   w.show();
-  if (parser.isSet(setProvider)) {
-    qDebug() << "Provider is set";
-    w.set_provider(provider);
-  }
+  w.parseCommand(parser);
 
-  if (parser.isSet(userAgent)) {
-    qDebug() << "useragent is set";
-    w.set_useragent(useragent);
-  }
   return app.exec();
 }
