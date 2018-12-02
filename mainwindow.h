@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "urlrequestinterceptor.h"
 #include <QAction>
 #include <QByteArray>
 #include <QCommandLineParser>
@@ -10,7 +11,6 @@
 #include <QShortcut>
 #include <QWebEngineFullScreenRequest>
 #include <QWebEngineView>
-#include "urlrequestinterceptor.h"
 namespace Ui {
 class MainWindow;
 }
@@ -21,6 +21,7 @@ class MainWindow : public QMainWindow {
 public:
   explicit MainWindow(QWidget *parent = 0);
   void set_provider(QString);
+  void set_useragent(QString);
   ~MainWindow();
   // QAction amazon();
 

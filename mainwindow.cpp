@@ -1,5 +1,4 @@
 #include "mainwindow.h"
-#include "commandlineparser.h"
 #include "ui_mainwindow.h"
 #include "urlrequestinterceptor.h"
 #include <QContextMenuEvent>
@@ -199,4 +198,11 @@ void MainWindow::set_provider(QString site) {
     qDebug() << "site is" << site;
     webview->setUrl(QUrl::fromUserInput(site));
   }
+}
+
+void MainWindow::set_useragent(QString useragent) {
+
+  this->webview->page()->profile()->setHttpUserAgent(useragent);
+  QString UserAgent = this->webview->page()->profile()->httpUserAgent();
+  qDebug() << "UserAgent change to" << UserAgent;
 }
