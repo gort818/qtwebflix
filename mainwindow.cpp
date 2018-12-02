@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "commandlineparser.h"
 #include "ui_mainwindow.h"
 #include "urlrequestinterceptor.h"
 #include <QContextMenuEvent>
@@ -35,10 +36,9 @@ MainWindow::MainWindow(QWidget *parent)
   }
   webview->settings()->setAttribute(
       QWebEngineSettings::FullScreenSupportEnabled, true);
-// Check for QT if equal or greater than 5.10 hide scrollbars        
+// Check for QT if equal or greater than 5.10 hide scrollbars
 #if HAS_SCROLLBAR
- webview->settings()->setAttribute(
-      QWebEngineSettings::ShowScrollBars, false);
+  webview->settings()->setAttribute(QWebEngineSettings::ShowScrollBars, false);
 #endif
 
   // connect handler for fullscreen press on video
@@ -51,10 +51,11 @@ MainWindow::MainWindow(QWidget *parent)
   // Check if user is using arm processor(Raspberry pi)
   QString UserAgent = this->webview->page()->profile()->httpUserAgent();
   qDebug() << UserAgent;
-  //qDebug() << "Changing user agent to Firefox 57";
-  //Testing User Agent
-  //UserAgent ="Mozilla/5.0 (X11; Linux x86_64; rv:57.0) Gecko/20100101 Firefox/57.0";
-  //this->webview->page()->profile()->setHttpUserAgent(UserAgent);
+  // qDebug() << "Changing user agent to Firefox 57";
+  // Testing User Agent
+  // UserAgent ="Mozilla/5.0 (X11; Linux x86_64; rv:57.0) Gecko/20100101
+  // Firefox/57.0";
+  // this->webview->page()->profile()->setHttpUserAgent(UserAgent);
   qDebug() << UserAgent.contains("Linux arm");
   if (UserAgent.contains("Linux arm")) {
     qDebug() << "Changing user agent for raspberry pi users";
@@ -186,5 +187,16 @@ void MainWindow::ShowContextMenu(const QPoint &pos) // this is a slot
 
   else {
     // nothing was chosen
+  }
+}
+
+void MainWindow::set_provider(QString site) {
+  if (site == "") {
+    qDebug() << "site is" << site;
+    webview->setUrl(QUrl(QStringLiteral("http://netflix.com")));
+
+  } else if (site != "") {
+    qDebug() << "site is" << site;
+    webview->setUrl(QUrl::fromUserInput(site));
   }
 }

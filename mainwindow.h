@@ -20,6 +20,7 @@ class MainWindow : public QMainWindow {
 
 public:
   explicit MainWindow(QWidget *parent = 0);
+  void set_provider(QString);
   ~MainWindow();
   // QAction amazon();
 
@@ -44,6 +45,7 @@ private:
   void writeSettings();
   void readSettings();
   void restore();
+
   UrlRequestInterceptor *m_interceptor;
 };
 
