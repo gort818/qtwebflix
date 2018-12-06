@@ -304,14 +304,20 @@ void MainWindow::parseCommand(QCommandLineParser &parser) {
       QCoreApplication::translate("main", "useragent"));
   parser.addOption(userAgent);
 
-  QString widevine = "--register-pepper-plugins";
+  QStringList webOptions = {"--register-pepper-plugins",
+                            "--disable-seccomp-filter-sandbox"};
 
   QStringList args;
 
   args = qApp->arguments();
   // qDebug()<<args;
-  args.replaceInStrings("--register-pepper-plugins", "");
-
+  for (auto arg : args) {
+    for (auto webOption : webOptions) {
+      if (arg.startsWith(webOption)) {
+        args.replaceInStrings(webOption, "");
+      }
+    }
+  }
   parser.process(args);
   // const QStringList args = parser.positionalArguments();
 
