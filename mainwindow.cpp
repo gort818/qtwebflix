@@ -9,6 +9,7 @@
 #include <QWebEngineFullScreenRequest>
 #include <QWebEngineProfile>
 #include <QWebEngineSettings>
+
 #include <QWebEngineUrlRequestInterceptor>
 #include <QWebEngineView>
 #include <QWidget>
@@ -280,7 +281,9 @@ void MainWindow::parseCommand(QCommandLineParser &parser) {
   QCoreApplication::setApplicationName("qtwebflix");
   QCoreApplication::setApplicationVersion("n/a");
 
-  parser.setApplicationDescription("Qtwebflix Help");
+  parser.setApplicationDescription(
+      "Qtwebflix Help \n\n To Control playback rate :\n CTRL + W = speed up \n "
+      "CTRL + S = slow down \n CTRL + R = reset to defualt\n");
   parser.addHelpOption();
   parser.addVersionOption();
 
@@ -296,7 +299,8 @@ void MainWindow::parseCommand(QCommandLineParser &parser) {
       QStringList() << "u"
                     << "useragent",
       QCoreApplication::translate(
-          "main", "change useragent eg. \"Mozilla/5.0 (X11; Linux x86_64; rv:63.0) Gecko/20100101 Firefox/63.0\""),
+          "main", "change useragent eg. \"Mozilla/5.0 (X11; Linux x86_64; "
+                  "rv:63.0) Gecko/20100101 Firefox/63.0\""),
       QCoreApplication::translate("main", "useragent"));
   parser.addOption(userAgent);
 
