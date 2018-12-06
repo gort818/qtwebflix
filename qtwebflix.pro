@@ -32,7 +32,8 @@ HEADERS  += mainwindow.h \
 
 FORMS    += mainwindow.ui
 
-RESOURCES += data
+RESOURCES = jquery.qrc \
+
 DISTFILES +=
 
 

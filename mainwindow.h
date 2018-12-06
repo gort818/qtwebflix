@@ -30,6 +30,9 @@ private slots:
   // slots for handlers of hotkeys
   void slotShortcutF11();
   void slotShortcutCtrlQ();
+  void slotShortcutCtrlW();
+  void slotShortcutCtrlS();
+  void slotShortcutCtrlR();
   void ShowContextMenu(const QPoint &pos);
 
 protected:
@@ -39,8 +42,14 @@ protected:
 private:
   Ui::MainWindow *ui;
   QWebEngineView *webview;
+  QString jQuery;
+  double playRate;
+  QString playRateStr;
   QShortcut *keyF11;   // Entity of F11 hotkey
   QShortcut *keyCtrlQ; // Entity of Ctrl + D hotkeys
+  QShortcut *keyCtrlW; // Entity of Crtl + W hotkey
+  QShortcut *keyCtrlS; // Entity of Crtl + S hotkey
+  QShortcut *keyCtrlR; // Entity of Crtl + R hotkey
   QSettings *appSettings;
   QSettings *provSettings;
   void fullScreenRequested(QWebEngineFullScreenRequest request);
