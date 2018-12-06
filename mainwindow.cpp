@@ -35,10 +35,9 @@ MainWindow::MainWindow(QWidget *parent)
   }
   webview->settings()->setAttribute(
       QWebEngineSettings::FullScreenSupportEnabled, true);
-// Check for QT if equal or greater than 5.10 hide scrollbars        
+// Check for QT if equal or greater than 5.10 hide scrollbars
 #if HAS_SCROLLBAR
- webview->settings()->setAttribute(
-      QWebEngineSettings::ShowScrollBars, false);
+  webview->settings()->setAttribute(QWebEngineSettings::ShowScrollBars, false);
 #endif
 
   // connect handler for fullscreen press on video
@@ -51,10 +50,11 @@ MainWindow::MainWindow(QWidget *parent)
   // Check if user is using arm processor(Raspberry pi)
   QString UserAgent = this->webview->page()->profile()->httpUserAgent();
   qDebug() << UserAgent;
-  //qDebug() << "Changing user agent to Firefox 57";
-  //Testing User Agent
-  //UserAgent ="Mozilla/5.0 (X11; Linux x86_64; rv:57.0) Gecko/20100101 Firefox/57.0";
-  //this->webview->page()->profile()->setHttpUserAgent(UserAgent);
+  // qDebug() << "Changing user agent to Firefox 57";
+  // Testing User Agent
+  // UserAgent ="Mozilla/5.0 (X11; Linux x86_64; rv:57.0) Gecko/20100101
+  // Firefox/57.0";
+  // this->webview->page()->profile()->setHttpUserAgent(UserAgent);
   qDebug() << UserAgent.contains("Linux arm");
   if (UserAgent.contains("Linux arm")) {
     qDebug() << "Changing user agent for raspberry pi users";
@@ -186,5 +186,73 @@ void MainWindow::ShowContextMenu(const QPoint &pos) // this is a slot
 
   else {
     // nothing was chosen
+  }
+}
+
+void MainWindow::set_provider(QString site) {
+  if (site == "") {
+    qDebug() << "site is" << site;
+    webview->setUrl(QUrl(QStringLiteral("http://netflix.com")));
+
+  } else if (site != "") {
+    qDebug() << "site is" << site;
+    webview->setUrl(QUrl::fromUserInput(site));
+  }
+}
+
+void MainWindow::set_useragent(QString useragent) {
+
+  this->webview->page()->profile()->setHttpUserAgent(useragent);
+  QString UserAgent = this->webview->page()->profile()->httpUserAgent();
+  qDebug() << "UserAgent change to" << UserAgent;
+}
+
+void MainWindow::parseCommand(QCommandLineParser &parser) {
+  QCoreApplication::setApplicationName("qtwebflix");
+  QCoreApplication::setApplicationVersion("n/a");
+
+  parser.setApplicationDescription("Qtwebflix Help");
+  parser.addHelpOption();
+  parser.addVersionOption();
+
+  QCommandLineOption setProvider(
+      QStringList() << "p"
+                    << "provider",
+      QCoreApplication::translate("main",
+                                  "Set content provider eg. netflix.com"),
+      QCoreApplication::translate("main", "provider"));
+  parser.addOption(setProvider);
+
+  QCommandLineOption userAgent(
+      QStringList() << "u"
+                    << "useragent",
+      QCoreApplication::translate(
+          "main", "change useragent eg. \"Mozilla/5.0 (Windows NT 10.0; WOW64) "
+                  "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.2526.73 "
+                  "Safari/537.36\""),
+      QCoreApplication::translate("main", "useragent"));
+  parser.addOption(userAgent);
+
+  QString widevine = "--register-pepper-plugins";
+
+  QStringList args;
+
+  args = qApp->arguments();
+  // qDebug()<<args;
+  args.replaceInStrings("--register-pepper-plugins", "");
+
+  parser.process(args);
+  // const QStringList args = parser.positionalArguments();
+
+  if (parser.isSet(setProvider)) {
+    qDebug() << "Provider is set";
+    QString providerName = parser.value(setProvider);
+    set_provider(providerName);
+  }
+
+  if (parser.isSet(userAgent)) {
+    qDebug() << "useragent is set";
+    QString agent = parser.value(userAgent);
+    set_useragent(agent);
   }
 }
