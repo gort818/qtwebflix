@@ -227,9 +227,7 @@ void MainWindow::parseCommand(QCommandLineParser &parser) {
       QStringList() << "u"
                     << "useragent",
       QCoreApplication::translate(
-          "main", "change useragent eg. \"Mozilla/5.0 (Windows NT 10.0; WOW64) "
-                  "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.2526.73 "
-                  "Safari/537.36\""),
+          "main", "change useragent eg. \"Mozilla/5.0 (X11; Linux x86_64; rv:63.0) Gecko/20100101 Firefox/63.0\""),
       QCoreApplication::translate("main", "useragent"));
   parser.addOption(userAgent);
 
