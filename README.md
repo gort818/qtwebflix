@@ -4,6 +4,27 @@ A qt webengine program to watch Netflix and other streaming services
 
 ![alt text](https://i.imgur.com/jrc7vV9.jpg) 
 
+
+<b> Usage </b>
+```
+Usage: qtwebflix [options]
+Qtwebflix Help 
+
+ To Control playback rate :
+ CTRL + W = speed up 
+ CTRL + S = slow down 
+ CTRL + R = reset to defualt
+
+
+Options:
+  -h, --help                   Displays this help.
+  -v, --version                Displays version information.
+  -p, --provider <provider>    Set content provider eg. netflix.com
+  -u, --useragent <useragent>  change useragent eg. "Mozilla/5.0 (X11; Linux
+                               x86_64; rv:63.0) Gecko/20100101 Firefox/63.0"
+```
+
+
 <b>As of March 30th 2018:</b>
 
        Now supports Netflix in 1080P.
