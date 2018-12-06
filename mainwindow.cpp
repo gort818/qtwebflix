@@ -21,6 +21,15 @@ MainWindow::MainWindow(QWidget *parent)
       QWebEngineSettings::PluginsEnabled, true);
   appSettings = new QSettings("Qtwebflix", "Save State", this);
 
+  playRate = 1.0;
+  playRateStr = QString::number(playRate);
+  QFile file;
+  file.setFileName(":/jquery.min.js");
+  file.open(QIODevice::ReadOnly);
+  jQuery = file.readAll();
+  jQuery.append("\nvar qt = { 'jQuery': jQuery.noConflict(true) };");
+  file.close();
+
   ui->setupUi(this);
   this->setWindowTitle("QtWebFlix");
   readSettings();
@@ -65,14 +74,33 @@ MainWindow::MainWindow(QWidget *parent)
   }
 
   // key short cuts
+
+  // F11
   keyF11 = new QShortcut(this); // Initialize the object
   keyF11->setKey(Qt::Key_F11);  // Set the key code
   // connect handler to keypress
   connect(keyF11, SIGNAL(activated()), this, SLOT(slotShortcutF11()));
+
+  // Ctrl + Q
   keyCtrlQ = new QShortcut(this);         // Initialize the object
   keyCtrlQ->setKey(Qt::CTRL + Qt::Key_Q); // Set the key code
   // connect handler to keypress
   connect(keyCtrlQ, SIGNAL(activated()), this, SLOT(slotShortcutCtrlQ()));
+
+  // Ctrl + W
+  keyCtrlW = new QShortcut(this);
+  keyCtrlW->setKey(Qt::CTRL + Qt::Key_W); // Set the key code
+  connect(keyCtrlW, SIGNAL(activated()), this, SLOT(slotShortcutCtrlW()));
+
+  // Ctrl + S
+  keyCtrlS = new QShortcut(this);
+  keyCtrlS->setKey(Qt::CTRL + Qt::Key_S); // Set the key code
+  connect(keyCtrlS, SIGNAL(activated()), this, SLOT(slotShortcutCtrlS()));
+
+  // Ctrl + R
+  keyCtrlR = new QShortcut(this);
+  keyCtrlR->setKey(Qt::CTRL + Qt::Key_R); // Set the key code
+  connect(keyCtrlR, SIGNAL(activated()), this, SLOT(slotShortcutCtrlR()));
 
   // Window size settings
   QSettings settings;
@@ -101,6 +129,47 @@ void MainWindow::slotShortcutF11() {
 void MainWindow::slotShortcutCtrlQ() {
   writeSettings();
   QApplication::quit();
+}
+
+// Slot handler for Ctrl + W
+void MainWindow::slotShortcutCtrlW() {
+  webview->page()->runJavaScript(jQuery);
+  if (playRate >= 2) {
+    return;
+  }
+  playRate += .1;
+  playRateStr = QString::number(playRate);
+  QString code = QStringLiteral("qt.jQuery('video').get(0).playbackRate =")
+                     .append(playRateStr);
+  qDebug() << code;
+  webview->page()->runJavaScript(code);
+}
+
+// Slot handler for Ctrl + S
+void MainWindow::slotShortcutCtrlS() {
+  webview->page()->runJavaScript(jQuery);
+  if (playRate < 0.2) {
+    return;
+  }
+  playRate -= .1;
+  playRateStr = QString::number(playRate);
+  QString code = QStringLiteral("qt.jQuery('video').get(0).playbackRate =")
+                     .append(playRateStr);
+  qDebug() << code;
+  webview->page()->runJavaScript(code);
+}
+
+// Slot handler for Ctrl + R
+void MainWindow::slotShortcutCtrlR() {
+  webview->page()->runJavaScript(jQuery);
+  if (playRate != 1.0) {
+    playRate = 1.0;
+    playRateStr = QString::number(playRate);
+    QString code = QStringLiteral("qt.jQuery('video').get(0).playbackRate =")
+                       .append(playRateStr);
+    qDebug() << code;
+    webview->page()->runJavaScript(code);
+  }
 }
 
 void MainWindow::closeEvent(QCloseEvent *) {
