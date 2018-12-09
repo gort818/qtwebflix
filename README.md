@@ -23,8 +23,8 @@ Options:
   -u, --useragent <useragent>  change useragent eg. "Mozilla/5.0 (X11; Linux
                                x86_64; rv:63.0) Gecko/20100101 Firefox/63.0"
 ```
-
-
+Example of playback rate visualizer.
+![alt text](https://i.imgur.com/B26CloV.png)
 <b>As of March 30th 2018:</b>
 
        Now supports Netflix in 1080P.
