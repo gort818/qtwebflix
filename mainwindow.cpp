@@ -103,6 +103,10 @@ MainWindow::MainWindow(QWidget *parent)
   keyCtrlR->setKey(Qt::CTRL + Qt::Key_R); // Set the key code
   connect(keyCtrlR, SIGNAL(activated()), this, SLOT(slotShortcutCtrlR()));
 
+  // Connect finished loading boolean
+  connect(webview, &QWebEngineView::loadFinished, this,
+          &MainWindow::finishLoading);
+
   // Window size settings
   QSettings settings;
   restoreState(settings.value("mainWindowState").toByteArray());
@@ -132,32 +136,58 @@ void MainWindow::slotShortcutCtrlQ() {
   QApplication::quit();
 }
 
+void MainWindow::finishLoading(bool) { webview->page()->runJavaScript(jQuery); }
+
 // Slot handler for Ctrl + W
 void MainWindow::slotShortcutCtrlW() {
-  webview->page()->runJavaScript(jQuery);
+  QString getPlayer =
+      ("var netflix = document.getElementsByClassName('ellipsize-text')[0];");
+  webview->page()->runJavaScript(getPlayer);
   if (playRate >= 2) {
     return;
   }
   playRate += .1;
   playRateStr = QString::number(playRate);
-  QString code = QStringLiteral("qt.jQuery('video').get(0).playbackRate =")
-                     .append(playRateStr);
-  qDebug() << code;
+  // QString code = QStringLiteral("qt.jQuery('video').get(0).playbackRate =")
+  QString code =
+      QStringLiteral("document.querySelector('video').playbackRate = ")
+          .append(playRateStr);
+  QString setSpeedText = QStringLiteral("var y = document.createTextNode('")
+                             .append(playRateStr)
+                             .append(" X');");
+
+  QString replaceText = ("netflix.replaceChild(y, netflix.childNodes[3])");
+  QString addTextToPlayer = ("netflix.appendChild(y);");
+  QString addTextCode = (setSpeedText + addTextToPlayer + replaceText);
+  qDebug() << "Player Speed set to: " << playRateStr;
   webview->page()->runJavaScript(code);
+  webview->page()->runJavaScript(addTextCode);
 }
 
 // Slot handler for Ctrl + S
 void MainWindow::slotShortcutCtrlS() {
-  webview->page()->runJavaScript(jQuery);
+
+  QString getPlayer =
+      ("var netflix = document.getElementsByClassName('ellipsize-text')[0];");
+  webview->page()->runJavaScript(getPlayer);
   if (playRate < 0.2) {
     return;
   }
   playRate -= .1;
   playRateStr = QString::number(playRate);
-  QString code = QStringLiteral("qt.jQuery('video').get(0).playbackRate =")
-                     .append(playRateStr);
-  qDebug() << code;
+  QString code =
+      QStringLiteral("document.querySelector('video').playbackRate = ")
+          .append(playRateStr);
+  QString setSpeedText = QStringLiteral("var y = document.createTextNode('")
+                             .append(playRateStr)
+                             .append(" X');");
+
+  QString replaceText = ("netflix.replaceChild(y, netflix.childNodes[3])");
+  QString addTextToPlayer = ("netflix.appendChild(y);");
+  QString addTextCode = (setSpeedText + addTextToPlayer + replaceText);
+  qDebug() << "Player Speed set to: " << playRateStr;
   webview->page()->runJavaScript(code);
+  webview->page()->runJavaScript(addTextCode);
 }
 
 // Slot handler for Ctrl + R
@@ -168,8 +198,17 @@ void MainWindow::slotShortcutCtrlR() {
     playRateStr = QString::number(playRate);
     QString code = QStringLiteral("qt.jQuery('video').get(0).playbackRate =")
                        .append(playRateStr);
-    qDebug() << code;
+    QString setSpeedText = QStringLiteral("var y = document.createTextNode('")
+                               .append(playRateStr)
+                               .append(" X');");
+    qDebug() << setSpeedText;
+
+    QString replaceText = ("netflix.replaceChild(y, netflix.childNodes[3])");
+    QString addTextToPlayer = ("netflix.appendChild(y);");
+    QString addTextCode = (setSpeedText + addTextToPlayer + replaceText);
+    qDebug() << "Player Speed set to: " << playRateStr;
     webview->page()->runJavaScript(code);
+    webview->page()->runJavaScript(addTextCode);
   }
 }
 

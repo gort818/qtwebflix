@@ -28,6 +28,7 @@ public:
 
 private slots:
   // slots for handlers of hotkeys
+  void finishLoading(bool);
   void slotShortcutF11();
   void slotShortcutCtrlQ();
   void slotShortcutCtrlW();
