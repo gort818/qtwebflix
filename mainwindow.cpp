@@ -140,9 +140,9 @@ void MainWindow::finishLoading(bool) { webview->page()->runJavaScript(jQuery); }
 
 // Slot handler for Ctrl + W
 void MainWindow::slotShortcutCtrlW() {
-  QString getPlayer =
-      ("var netflix = document.getElementsByClassName('ellipsize-text')[0];");
-  webview->page()->runJavaScript(getPlayer);
+
+  QString site =webview->url().toString();
+
   if (playRate >= 2) {
     return;
   }
@@ -156,12 +156,32 @@ void MainWindow::slotShortcutCtrlW() {
                              .append(playRateStr)
                              .append(" X');");
 
-  QString replaceText = ("netflix.replaceChild(y, netflix.childNodes[3])");
-  QString addTextToPlayer = ("netflix.appendChild(y);");
-  QString addTextCode = (setSpeedText + addTextToPlayer + replaceText);
+
   qDebug() << "Player Speed set to: " << playRateStr;
+
   webview->page()->runJavaScript(code);
-  webview->page()->runJavaScript(addTextCode);
+
+  if (site.contains("amazon")){
+      QString getPlayer =
+          ("var amazon = document.getElementsByClassName('left')[0];");
+      QString replaceText = ("amazon.replaceChild(y, amazon.childNodes[1])");
+      QString addTextToPlayer = ("amazon.appendChild(y);");
+      QString addTextCode = (setSpeedText + addTextToPlayer + replaceText);
+      webview->page()->runJavaScript(getPlayer);
+      webview->page()->runJavaScript(addTextCode);
+  }
+  else {
+      QString getPlayer =
+          ("var netflix = document.getElementsByClassName('ellipsize-text')[0];");
+      QString replaceText = ("netflix.replaceChild(y, netflix.childNodes[3])");
+      QString addTextToPlayer = ("netflix.appendChild(y);");
+      QString addTextCode = (setSpeedText + addTextToPlayer + replaceText);
+      webview->page()->runJavaScript(getPlayer);
+      webview->page()->runJavaScript(addTextCode);
+
+  }
+
+
 }
 
 // Slot handler for Ctrl + S
