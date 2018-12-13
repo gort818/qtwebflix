@@ -23,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
       QWebEngineSettings::PluginsEnabled, true);
   appSettings = new QSettings("Qtwebflix", "Save State", this);
 
-  //set playbackrate and read jquery file
+  // set playbackrate and read jquery file
   playRate = 1.0;
   playRateStr = QString::number(playRate);
   QFile file;
@@ -61,13 +61,13 @@ MainWindow::MainWindow(QWidget *parent)
 
   // Check if user is using arm processor(Raspberry pi)
   QString UserAgent = this->webview->page()->profile()->httpUserAgent();
-  qDebug() << UserAgent;
+  // qDebug() << UserAgent;
   // qDebug() << "Changing user agent to Firefox 57";
   // Testing User Agent
   // UserAgent ="Mozilla/5.0 (X11; Linux x86_64; rv:57.0) Gecko/20100101
   // Firefox/57.0";
   // this->webview->page()->profile()->setHttpUserAgent(UserAgent);
-  qDebug() << UserAgent.contains("Linux arm");
+  // qDebug() << UserAgent.contains("Linux arm");
   if (UserAgent.contains("Linux arm")) {
     qDebug() << "Changing user agent for raspberry pi users";
     QString UserAgent = "Mozilla/5.0 (X11; CrOS armv7l 6946.86.0) "
@@ -119,7 +119,6 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 MainWindow::~MainWindow() { delete ui; }
-
 
 // Slot handler of F11
 void MainWindow::slotShortcutF11() {
@@ -204,7 +203,6 @@ void MainWindow::slotShortcutCtrlR() {
     QString setSpeedText = QStringLiteral("var y = document.createTextNode('")
                                .append(playRateStr)
                                .append(" X');");
-    qDebug() << setSpeedText;
 
     QString replaceText = ("netflix.replaceChild(y, netflix.childNodes[3])");
     QString addTextToPlayer = ("netflix.appendChild(y);");
@@ -302,10 +300,10 @@ void MainWindow::ShowContextMenu(const QPoint &pos) // this is a slot
 }
 
 void MainWindow::parseCommand() {
-  //create parser object and get arguemts
+  // create parser object and get arguemts
   Commandlineparser parser;
 
-  //check if argument is used and set provider
+  // check if argument is used and set provider
   if (parser.providerIsSet()) {
     if (parser.getProvider() == "") {
       qDebug() << "site is invalid reditecting to netflix.com";
@@ -318,7 +316,7 @@ void MainWindow::parseCommand() {
 
   // check if argument is used and set useragent
   if (parser.userAgentisSet()) {
-    qDebug()<<"Changing useragent to :" << parser.getUserAgent();
+    qDebug() << "Changing useragent to :" << parser.getUserAgent();
     this->webview->page()->profile()->setHttpUserAgent(parser.getUserAgent());
   }
 }
