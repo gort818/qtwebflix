@@ -244,7 +244,7 @@ void MainWindow::fullScreenRequested(QWebEngineFullScreenRequest request) {
 
   // fullscreen on video players
 
-  if (request.toggleOn()) {
+  if (request.toggleOn() &&  !this->isFullScreen()) {
     this->showFullScreen();
   } else {
     this->showNormal();
@@ -344,7 +344,8 @@ void MainWindow::parseCommand(QCommandLineParser &parser) {
   parser.addOption(userAgent);
 
   QStringList webOptions = {"--register-pepper-plugins",
-                            "--disable-seccomp-filter-sandbox"};
+                            "--disable-seccomp-filter-sandbox",
+                            "--disable-logging"};
 
   QStringList args;
 

@@ -23,16 +23,16 @@ equals(QT_MAJOR_VERSION, 5):!lessThan(QT_MINOR_VERSION, 10) {
 }
 
 
-SOURCES += main.cpp\
-        mainwindow.cpp \
-    urlrequestinterceptor.cpp 
+SOURCES += src/main.cpp\
+        src/mainwindow.cpp \
+    src/urlrequestinterceptor.cpp
 
-HEADERS  += mainwindow.h \
-    urlrequestinterceptor.h \
+HEADERS  += src/mainwindow.h \
+    src/urlrequestinterceptor.h \
 
-FORMS    += mainwindow.ui
+FORMS    += ui/mainwindow.ui
 
-RESOURCES = jquery.qrc \
+RESOURCES = resources/jquery.qrc \
 
 DISTFILES +=
 
