@@ -10,12 +10,12 @@
 int main(int argc, char *argv[]) {
   QApplication app(argc, argv);
 
-  QCommandLineParser parser;
+  //QCommandLineParser parser;
 
   MainWindow w;
 
   w.show();
-  w.parseCommand(parser);
+  w.parseCommand();
 
   return app.exec();
 }

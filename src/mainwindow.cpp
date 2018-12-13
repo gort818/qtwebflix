@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "commandlineparser.h"
 #include "ui_mainwindow.h"
 #include "urlrequestinterceptor.h"
 #include <QContextMenuEvent>
@@ -22,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
       QWebEngineSettings::PluginsEnabled, true);
   appSettings = new QSettings("Qtwebflix", "Save State", this);
 
+  //set playbackrate and read jquery file
   playRate = 1.0;
   playRateStr = QString::number(playRate);
   QFile file;
@@ -117,6 +119,7 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 MainWindow::~MainWindow() { delete ui; }
+
 
 // Slot handler of F11
 void MainWindow::slotShortcutF11() {
@@ -244,7 +247,7 @@ void MainWindow::fullScreenRequested(QWebEngineFullScreenRequest request) {
 
   // fullscreen on video players
 
-  if (request.toggleOn() &&  !this->isFullScreen()) {
+  if (request.toggleOn() && !this->isFullScreen()) {
     this->showFullScreen();
   } else {
     this->showNormal();
@@ -298,78 +301,24 @@ void MainWindow::ShowContextMenu(const QPoint &pos) // this is a slot
   }
 }
 
-void MainWindow::set_provider(QString site) {
-  if (site == "") {
-    qDebug() << "site is" << site;
-    webview->setUrl(QUrl(QStringLiteral("http://netflix.com")));
+void MainWindow::parseCommand() {
+  //create parser object and get arguemts
+  Commandlineparser parser;
 
-  } else if (site != "") {
-    qDebug() << "site is" << site;
-    webview->setUrl(QUrl::fromUserInput(site));
-  }
-}
-
-void MainWindow::set_useragent(QString useragent) {
-
-  this->webview->page()->profile()->setHttpUserAgent(useragent);
-  QString UserAgent = this->webview->page()->profile()->httpUserAgent();
-  qDebug() << "UserAgent change to" << UserAgent;
-}
-
-void MainWindow::parseCommand(QCommandLineParser &parser) {
-  QCoreApplication::setApplicationName("qtwebflix");
-  QCoreApplication::setApplicationVersion("n/a");
-
-  parser.setApplicationDescription(
-      "Qtwebflix Help \n\n To Control playback rate :\n CTRL + W = speed up \n "
-      "CTRL + S = slow down \n CTRL + R = reset to defualt\n");
-  parser.addHelpOption();
-  parser.addVersionOption();
-
-  QCommandLineOption setProvider(
-      QStringList() << "p"
-                    << "provider",
-      QCoreApplication::translate("main",
-                                  "Set content provider eg. netflix.com"),
-      QCoreApplication::translate("main", "provider"));
-  parser.addOption(setProvider);
-
-  QCommandLineOption userAgent(
-      QStringList() << "u"
-                    << "useragent",
-      QCoreApplication::translate(
-          "main", "change useragent eg. \"Mozilla/5.0 (X11; Linux x86_64; "
-                  "rv:63.0) Gecko/20100101 Firefox/63.0\""),
-      QCoreApplication::translate("main", "useragent"));
-  parser.addOption(userAgent);
-
-  QStringList webOptions = {"--register-pepper-plugins",
-                            "--disable-seccomp-filter-sandbox",
-                            "--disable-logging"};
-
-  QStringList args;
-
-  args = qApp->arguments();
-  // qDebug()<<args;
-  for (auto arg : args) {
-    for (auto webOption : webOptions) {
-      if (arg.startsWith(webOption)) {
-        args.replaceInStrings(webOption, "");
-      }
+  //check if argument is used and set provider
+  if (parser.providerIsSet()) {
+    if (parser.getProvider() == "") {
+      qDebug() << "site is invalid reditecting to netflix.com";
+      webview->setUrl(QUrl(QStringLiteral("http://netflix.com")));
+    } else if (parser.getProvider() != "") {
+      qDebug() << "site is set to" << parser.getProvider();
+      webview->setUrl(QUrl::fromUserInput(parser.getProvider()));
     }
   }
-  parser.process(args);
-  // const QStringList args = parser.positionalArguments();
 
-  if (parser.isSet(setProvider)) {
-    qDebug() << "Provider is set";
-    QString providerName = parser.value(setProvider);
-    set_provider(providerName);
-  }
-
-  if (parser.isSet(userAgent)) {
-    qDebug() << "useragent is set";
-    QString agent = parser.value(userAgent);
-    set_useragent(agent);
+  // check if argument is used and set useragent
+  if (parser.userAgentisSet()) {
+    qDebug()<<"Changing useragent to :" << parser.getUserAgent();
+    this->webview->page()->profile()->setHttpUserAgent(parser.getUserAgent());
   }
 }

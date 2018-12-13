@@ -25,10 +25,12 @@ equals(QT_MAJOR_VERSION, 5):!lessThan(QT_MINOR_VERSION, 10) {
 
 SOURCES += src/main.cpp\
         src/mainwindow.cpp \
-    src/urlrequestinterceptor.cpp
+    src/urlrequestinterceptor.cpp \
+    src/commandlineparser.cpp
 
 HEADERS  += src/mainwindow.h \
     src/urlrequestinterceptor.h \
+    src/commandlineparser.h
 
 FORMS    += ui/mainwindow.ui
 
