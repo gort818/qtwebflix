@@ -8,13 +8,17 @@ A qt webengine program to watch Netflix and other streaming services
 <b> Usage </b>
 ```
 Usage: qtwebflix [options]
-Qtwebflix Help 
+Qtwebflix Help
+
+ Shortcuts:
+ CTRL + Q to quit
+ CTRL + F11 for full screen
+ CTRL + F5 to reload
 
  To Control playback rate :
  CTRL + W = speed up 
  CTRL + S = slow down 
  CTRL + R = reset to defualt
-
 
 Options:
   -h, --help                   Displays this help.
