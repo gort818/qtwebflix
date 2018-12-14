@@ -21,17 +21,21 @@ equals(QT_MAJOR_VERSION, 5):!lessThan(QT_MINOR_VERSION, 10) {
 } else {
   message(Qt $$QT_VERSION ScrollBars not supported in this version.)
 }
+
+#Get current git tag and use for version number
 BASE_GIT_COMMAND = git --git-dir $$PWD/.git --work-tree $$PWD
 GIT_VERSION = $$system($$BASE_GIT_COMMAND describe --always --tags)
 DEFINES += GIT_VERSION=\\\"$$GIT_VERSION\\\"
+
+
 SOURCES += src/main.cpp\
-        src/mainwindow.cpp \
-    src/urlrequestinterceptor.cpp \
-    src/commandlineparser.cpp
+           src/mainwindow.cpp \
+           src/urlrequestinterceptor.cpp \
+           src/commandlineparser.cpp
 
 HEADERS  += src/mainwindow.h \
-    src/urlrequestinterceptor.h \
-    src/commandlineparser.h
+            src/urlrequestinterceptor.h \
+            src/commandlineparser.h
 
 FORMS    += ui/mainwindow.ui
 
