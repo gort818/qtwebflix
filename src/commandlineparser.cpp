@@ -5,8 +5,7 @@ Commandlineparser::Commandlineparser() {
   // create commandline parser, set options, and parse them.
   QCommandLineParser parser;
   QCoreApplication::setApplicationName("qtwebflix");
-  QCoreApplication::setApplicationVersion("n/a");
-
+  QCoreApplication::setApplicationVersion(QVariant(GIT_VERSION).toString());
   parser.setApplicationDescription(
       "Qtwebflix Help \n\n To Control playback rate :\n CTRL + W = speed up \n "
       "CTRL + S = slow down \n CTRL + R = reset to defualt\n");
