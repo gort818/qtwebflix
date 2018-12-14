@@ -7,8 +7,8 @@ Commandlineparser::Commandlineparser() {
   QCoreApplication::setApplicationName("qtwebflix");
   QCoreApplication::setApplicationVersion(QVariant(GIT_VERSION).toString());
   parser.setApplicationDescription(
-      "Qtwebflix Help \n\n To Control playback rate :\n CTRL + W = speed up \n "
-      "CTRL + S = slow down \n CTRL + R = reset to defualt\n");
+      "\nQtwebflix Help\n\n Shortcuts:\n CTRL + Q to quit\n CTRL + F11 for full screen\n CTRL + F5 to reload\n\n To Control playback rate:\n CTRL + W = speed up \n "
+      "CTRL + S = slow down \n CTRL + R = reset to defualt");
   parser.addHelpOption();
   parser.addVersionOption();
 
