@@ -22,6 +22,7 @@ Options:
   -p, --provider <provider>    Set content provider eg. netflix.com
   -u, --useragent <useragent>  change useragent eg. "Mozilla/5.0 (X11; Linux
                                x86_64; rv:63.0) Gecko/20100101 Firefox/63.0"
+  -n, --nonhd                  Do not use HD addon, you will be limited to 720p
 ```
 Example of playback rate visualizer.
 ![alt text](https://i.imgur.com/B26CloV.png)
