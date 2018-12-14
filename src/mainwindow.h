@@ -35,6 +35,7 @@ private slots:
   void slotShortcutCtrlW();
   void slotShortcutCtrlS();
   void slotShortcutCtrlR();
+  void slotShortcutCtrlF5();
   void ShowContextMenu(const QPoint &pos);
 
 protected:
@@ -52,6 +53,7 @@ private:
   QShortcut *keyCtrlW; // Entity of Crtl + W hotkey
   QShortcut *keyCtrlS; // Entity of Crtl + S hotkey
   QShortcut *keyCtrlR; // Entity of Crtl + R hotkey
+  QShortcut *keyCtrlF5; // Entity of Crtl + R hotkey
   QSettings *appSettings;
   QSettings *provSettings;
   void fullScreenRequested(QWebEngineFullScreenRequest request);

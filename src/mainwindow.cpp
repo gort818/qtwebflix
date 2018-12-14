@@ -102,6 +102,12 @@ MainWindow::MainWindow(QWidget *parent)
   keyCtrlR->setKey(Qt::CTRL + Qt::Key_R); // Set the key code
   connect(keyCtrlR, SIGNAL(activated()), this, SLOT(slotShortcutCtrlR()));
 
+
+  // Ctrl + F5
+  keyCtrlF5 = new QShortcut(this);
+  keyCtrlF5->setKey(Qt::CTRL + Qt::Key_F5); // Set the key code
+  connect(keyCtrlF5, SIGNAL(activated()), this, SLOT(slotShortcutCtrlF5()));
+
   // Connect finished loading boolean
   connect(webview, &QWebEngineView::loadFinished, this,
           &MainWindow::finishLoading);
@@ -209,6 +215,11 @@ void MainWindow::slotShortcutCtrlR() {
     webview->page()->runJavaScript(addTextCode);
   }
 }
+
+void MainWindow::slotShortcutCtrlF5() {
+     webview->triggerPageAction(QWebEnginePage::ReloadAndBypassCache);
+}
+
 
 void MainWindow::closeEvent(QCloseEvent *) {
   // This will be called whenever this window is closed.
