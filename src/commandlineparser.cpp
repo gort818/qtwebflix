@@ -29,6 +29,12 @@ Commandlineparser::Commandlineparser() {
       QCoreApplication::translate("main", "useragent"));
   parser.addOption(userAgent);
 
+  QCommandLineOption nonHD(QStringList() << "n"
+                                         << "nonhd",
+                           QCoreApplication::translate(
+                               "main", "Do not use HD addon, you will be limited to 720p"));
+  parser.addOption(nonHD);
+
   QStringList webOptions = {"--register-pepper-plugins",
                             "--disable-seccomp-filter-sandbox",
                             "--disable-logging"};
@@ -63,11 +69,18 @@ Commandlineparser::Commandlineparser() {
   } else {
     userAgentset_ = false;
   }
+
+  if (parser.isSet(nonHD)) {
+    nonHDset_ = true;
+  } else {
+    nonHDset_ = false;
+  }
 }
 
 bool Commandlineparser::providerIsSet() const { return providerSet_; }
 
 bool Commandlineparser::userAgentisSet() const { return userAgentset_; }
+bool Commandlineparser::nonHDisSet() const { return nonHDset_; }
 
 QString Commandlineparser::getProvider() const { return provider_; }
 

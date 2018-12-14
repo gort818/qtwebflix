@@ -56,9 +56,6 @@ MainWindow::MainWindow(QWidget *parent)
   connect(webview->page(), &QWebEnginePage::fullScreenRequested, this,
           &MainWindow::fullScreenRequested);
 
-  this->m_interceptor = new UrlRequestInterceptor;
-  this->webview->page()->profile()->setRequestInterceptor(this->m_interceptor);
-
   // Check if user is using arm processor(Raspberry pi)
   QString UserAgent = this->webview->page()->profile()->httpUserAgent();
   // qDebug() << UserAgent;
@@ -318,5 +315,10 @@ void MainWindow::parseCommand() {
   if (parser.userAgentisSet()) {
     qDebug() << "Changing useragent to :" << parser.getUserAgent();
     this->webview->page()->profile()->setHttpUserAgent(parser.getUserAgent());
+  }
+  if (!parser.nonHDisSet()) {
+    this->m_interceptor = new UrlRequestInterceptor;
+    this->webview->page()->profile()->setRequestInterceptor(
+        this->m_interceptor);
   }
 }
