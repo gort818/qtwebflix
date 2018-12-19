@@ -28,6 +28,11 @@ Options:
                                x86_64; rv:63.0) Gecko/20100101 Firefox/63.0"
   -n, --nonhd                  Do not use HD addon, you will be limited to 720p
 ```
+To Display metrics:
+```
+ctrl + atl + shift + d
+````
+
 Example of playback rate visualizer.
 ![alt text](https://i.imgur.com/B26CloV.png)
 <b>As of March 30th 2018:</b>
