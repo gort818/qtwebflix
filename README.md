@@ -14,11 +14,12 @@ Qtwebflix Help
  CTRL + Q to quit
  CTRL + F11 for full screen
  CTRL + F5 to reload
+ CTRL + SHIFT + ALT + D for metrics display
 
  To Control playback rate :
- CTRL + W = speed up 
- CTRL + S = slow down 
- CTRL + R = reset to defualt
+ CTRL + W = Speed up 
+ CTRL + S = Slow down 
+ CTRL + R = Reset to default rate
 
 Options:
   -h, --help                   Displays this help.
@@ -28,10 +29,7 @@ Options:
                                x86_64; rv:63.0) Gecko/20100101 Firefox/63.0"
   -n, --nonhd                  Do not use HD addon, you will be limited to 720p
 ```
-To Display metrics:
-```
-ctrl + atl + shift + d
-````
+
 
 Example of playback rate visualizer.
 ![alt text](https://i.imgur.com/B26CloV.png)
