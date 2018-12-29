@@ -220,6 +220,38 @@ void MainWindow::slotShortcutCtrlF5() {
      webview->triggerPageAction(QWebEnginePage::ReloadAndBypassCache);
 }
 
+void MainWindow::playVideo() {
+  QString code = ("document.querySelector('video').play();");
+  qDebug() << "Player playing";
+  webview->page()->runJavaScript(code);
+}
+
+void MainWindow::pauseVideo() {
+  QString code = ("document.querySelector('video').pause();");
+  qDebug() << "Player paused";
+  webview->page()->runJavaScript(code);
+}
+
+void MainWindow::togglePlayPause() {
+  QString code = ("{ var vid = document.querySelector('video'); if (vid.paused) vid.play(); else vid.pause(); }");
+  qDebug() << "Player toggled play/pause";
+  webview->page()->runJavaScript(code);
+}
+
+void MainWindow::setVideoVolume(qreal volume) {
+  QString code = QStringLiteral("document.querySelector('video').volume =")
+                     .append(QString::number(volume));
+  qDebug() << "Player set volume to " << volume;
+  webview->page()->runJavaScript(code);
+}
+
+void MainWindow::getVideoState(std::function<void(bool)> callback) {
+  QString code = ("document.querySelector('video').paused");
+  webview->page()->runJavaScript(code, [callback](const QVariant& result) {
+            QString resultString = result.toString();
+            callback(resultString == "false");
+          });
+}
 
 void MainWindow::closeEvent(QCloseEvent *) {
   // This will be called whenever this window is closed.

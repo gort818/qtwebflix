@@ -1,6 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <functional>
+
 #include "urlrequestinterceptor.h"
 #include <QAction>
 #include <QByteArray>
@@ -26,6 +28,7 @@ public:
     void parseCommand();
   ~MainWindow();
   // QAction amazon();
+  void getVideoState(std::function<void(bool)> callback);
 
 private slots:
   // slots for handlers of hotkeys
@@ -37,6 +40,11 @@ private slots:
   void slotShortcutCtrlR();
   void slotShortcutCtrlF5();
   void ShowContextMenu(const QPoint &pos);
+
+  void playVideo();
+  void pauseVideo();
+  void togglePlayPause();
+  void setVideoVolume(qreal volume);
 
 protected:
   // save window geometry
