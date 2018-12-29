@@ -8,9 +8,9 @@
 #include <QWebEngineView>
 
 int main(int argc, char *argv[]) {
-  QApplication app(argc, argv);
 
-  //QCommandLineParser parser;
+  QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+  QApplication app(argc, argv);
 
   MainWindow w;
 
