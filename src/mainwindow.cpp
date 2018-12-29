@@ -119,6 +119,24 @@ MainWindow::MainWindow(QWidget *parent)
   webview->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(webview, SIGNAL(customContextMenuRequested(const QPoint &)), this,
           SLOT(ShowContextMenu(const QPoint &)));
+
+  {
+    std::lock_guard<std::mutex> l(mtx_player);
+    player.setServiceName(QString("QtWebFlix"));
+    player.setCanQuit(true);
+    player.setCanSetFullscreen(true);
+    player.setCanPause(true);
+    player.setCanPlay(true);
+    player.setCanControl(true);
+
+    connect(&playerStateTimer, SIGNAL(timeout()), this, SLOT(playerStateTimerFired()));
+    playerStateTimer.start(500);
+
+    connect(&player, SIGNAL(pauseRequested()), this, SLOT(pauseVideo()));
+    connect(&player, SIGNAL(playRequested()), this, SLOT(playVideo()));
+    connect(&player, SIGNAL(playPauseRequested()), this, SLOT(togglePlayPause()));
+    connect(&player, SIGNAL(fullscreenRequested(bool)), this, SLOT(setFullScreen(bool)));
+  }
 }
 
 MainWindow::~MainWindow() { delete ui; }
@@ -128,11 +146,7 @@ void MainWindow::slotShortcutF11() {
   /* This handler will make switching applications in full screen mode
    * and back to normal window mode
    * */
-  if (this->isFullScreen()) {
-    this->showNormal();
-  } else {
-    this->showFullScreen();
-  }
+  this->setFullScreen(!this->isFullScreen());
 }
 
 // Slot handler for Ctrl + Q
@@ -245,12 +259,29 @@ void MainWindow::setVideoVolume(qreal volume) {
   webview->page()->runJavaScript(code);
 }
 
-void MainWindow::getVideoState(std::function<void(bool)> callback) {
-  QString code = ("document.querySelector('video').paused");
+void MainWindow::getVideoState(std::function<void(Mpris::PlaybackStatus)> callback) {
+  QString code = ("(function () {" \
+                 "var vid = document.querySelector('video');" \
+                 "if (!vid) return 'stopped';" \
+                 "return vid.paused ? 'paused' : 'playing';" \
+          "})()");
   webview->page()->runJavaScript(code, [callback](const QVariant& result) {
             QString resultString = result.toString();
-            callback(resultString == "false");
+            Mpris::PlaybackStatus status = Mpris::InvalidPlaybackStatus;
+            if (resultString == "stopped") status = Mpris::Stopped;
+            else if (resultString == "playing") status = Mpris::Playing;
+            else if (resultString == "paused") status = Mpris::Paused;
+            callback(status);
           });
+}
+
+void MainWindow::setFullScreen(bool fullscreen) {
+  if (!fullscreen) {
+    this->showNormal();
+  } else {
+    this->showFullScreen();
+  }
+  updatePlayerFullScreen();
 }
 
 void MainWindow::closeEvent(QCloseEvent *) {
@@ -290,7 +321,15 @@ void MainWindow::fullScreenRequested(QWebEngineFullScreenRequest request) {
   } else {
     this->showNormal();
   }
+  updatePlayerFullScreen();
   request.accept();
+}
+
+void MainWindow::playerStateTimerFired() {
+    getVideoState([this](Mpris::PlaybackStatus state) {
+            std::lock_guard<std::mutex> l(mtx_player);
+            player.setPlaybackStatus(state);
+          });
 }
 
 void MainWindow::ShowContextMenu(const QPoint &pos) // this is a slot
@@ -337,6 +376,11 @@ void MainWindow::ShowContextMenu(const QPoint &pos) // this is a slot
   else {
     // nothing was chosen
   }
+}
+
+void MainWindow::updatePlayerFullScreen() {
+    std::lock_guard<std::mutex> l(mtx_player);
+    player.setFullscreen(this->isFullScreen());
 }
 
 void MainWindow::parseCommand() {

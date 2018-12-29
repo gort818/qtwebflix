@@ -27,6 +27,9 @@ BASE_GIT_COMMAND = git --git-dir $$PWD/.git --work-tree $$PWD
 GIT_VERSION = $$system($$BASE_GIT_COMMAND describe --always --tags)
 DEFINES += GIT_VERSION=\\\"$$GIT_VERSION\\\"
 
+CONFIG += link_pkgconfig
+PKGCONFIG = mpris-qt5
+
 
 SOURCES += src/main.cpp\
            src/mainwindow.cpp \
@@ -42,7 +45,6 @@ FORMS    += ui/mainwindow.ui
 RESOURCES = resources/jquery.qrc \
 
 DISTFILES +=
-
 
 
 

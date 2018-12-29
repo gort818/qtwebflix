@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <mutex>
 #include <functional>
 
 #include "urlrequestinterceptor.h"
@@ -13,6 +14,10 @@
 #include <QShortcut>
 #include <QWebEngineFullScreenRequest>
 #include <QWebEngineView>
+#include <QTimer>
+#include <Mpris>
+#include <MprisPlayer>
+
 namespace Ui {
 class MainWindow;
 }
@@ -28,7 +33,7 @@ public:
     void parseCommand();
   ~MainWindow();
   // QAction amazon();
-  void getVideoState(std::function<void(bool)> callback);
+  void getVideoState(std::function<void(Mpris::PlaybackStatus)> callback);
 
 private slots:
   // slots for handlers of hotkeys
@@ -45,6 +50,9 @@ private slots:
   void pauseVideo();
   void togglePlayPause();
   void setVideoVolume(qreal volume);
+  void setFullScreen(bool fullscreen);
+
+  void playerStateTimerFired();
 
 protected:
   // save window geometry
@@ -64,11 +72,14 @@ private:
   QShortcut *keyCtrlF5; // Entity of Crtl + R hotkey
   QSettings *appSettings;
   QSettings *provSettings;
+  std::mutex mtx_player;
+  MprisPlayer player;
+  QTimer playerStateTimer;
   void fullScreenRequested(QWebEngineFullScreenRequest request);
   void writeSettings();
   void readSettings();
   void restore();
-
+  void updatePlayerFullScreen();
 
   UrlRequestInterceptor *m_interceptor;
 };
