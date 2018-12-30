@@ -293,15 +293,25 @@ void MainWindow::getVideoPosition(std::function<void(qlonglong)> callback) {
           });
 }
 
-void MainWindow::getVideoLength(std::function<void(qlonglong)> callback) {
+void MainWindow::getMetadata(std::function<void(qlonglong, const QString&)> callback) {
   QString code = ("(function () {" \
                  "var vid = document.querySelector('video');" \
-                 "return vid ? vid.duration : -1;" \
+                 "var titleLabel = document.querySelector('.PlayerControls--control-element.video-title .ellipsize-text');" \
+                 "var metadata = {};"\
+                 "metadata.duration = vid ? vid.duration : -1;" \
+                 "metadata.title = titleLabel ? titleLabel.textContent : '';" \
+                 "return metadata;"
           "})()");
   webview->page()->runJavaScript(code, [callback](const QVariant& result) {
-            double seconds = result.toDouble();
-            if (seconds < 0) callback(-1);
-            else callback(seconds / 1e-6);
+            QVariantMap map = result.toMap();
+
+            double seconds = map["duration"].toDouble();
+            if (seconds < 0) seconds = -1;
+            else seconds /= 1e-6;
+
+            QString title = map["title"].toString();
+
+            callback(seconds, title);
           });
 }
 
@@ -386,11 +396,14 @@ void MainWindow::playerPositionTimerFired() {
 }
 
 void MainWindow::metadataTimerFired() {
-    getVideoLength([this](qlonglong useconds) {
+    getMetadata([this](qlonglong lengthUseconds, const QString& title) {
             std::lock_guard<std::mutex> l(mtx_player);
             QVariantMap metadata;
-            if (useconds >= 0) {
-              metadata[Mpris::metadataToString(Mpris::Length)] = QVariant(useconds);
+            if (lengthUseconds >= 0) {
+              metadata[Mpris::metadataToString(Mpris::Length)] = QVariant(lengthUseconds);
+            }
+            if (!title.isEmpty()) {
+              metadata[Mpris::metadataToString(Mpris::Title)] = QVariant(title);
             }
             player.setMetadata(metadata);
           });
