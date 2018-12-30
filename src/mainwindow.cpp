@@ -132,10 +132,14 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&playerStateTimer, SIGNAL(timeout()), this, SLOT(playerStateTimerFired()));
     playerStateTimer.start(500);
 
+    connect(&volumeTimer, SIGNAL(timeout()), this, SLOT(volumeTimerFired()));
+    volumeTimer.start(220);
+
     connect(&player, SIGNAL(pauseRequested()), this, SLOT(pauseVideo()));
     connect(&player, SIGNAL(playRequested()), this, SLOT(playVideo()));
     connect(&player, SIGNAL(playPauseRequested()), this, SLOT(togglePlayPause()));
     connect(&player, SIGNAL(fullscreenRequested(bool)), this, SLOT(setFullScreen(bool)));
+    connect(&player, SIGNAL(volumeRequested(double)), this, SLOT(setVideoVolume(double)));
   }
 }
 
@@ -252,11 +256,21 @@ void MainWindow::togglePlayPause() {
   webview->page()->runJavaScript(code);
 }
 
-void MainWindow::setVideoVolume(qreal volume) {
+void MainWindow::setVideoVolume(double volume) {
   QString code = QStringLiteral("document.querySelector('video').volume =")
                      .append(QString::number(volume));
   qDebug() << "Player set volume to " << volume;
   webview->page()->runJavaScript(code);
+}
+
+void MainWindow::getVolume(std::function<void(double)> callback) {
+  QString code = ("(function () {" \
+                 "var vid = document.querySelector('video');" \
+                 "return vid ? vid.volume : -1;" \
+          "})()");
+  webview->page()->runJavaScript(code, [callback](const QVariant& result) {
+            callback(result.toDouble());
+          });
 }
 
 void MainWindow::getVideoState(std::function<void(Mpris::PlaybackStatus)> callback) {
@@ -329,6 +343,15 @@ void MainWindow::playerStateTimerFired() {
     getVideoState([this](Mpris::PlaybackStatus state) {
             std::lock_guard<std::mutex> l(mtx_player);
             player.setPlaybackStatus(state);
+          });
+}
+
+void MainWindow::volumeTimerFired() {
+    getVolume([this](double volume) {
+            if (volume >= 0) {
+              std::lock_guard<std::mutex> l(mtx_player);
+              player.setVolume(volume);
+            }
           });
 }
 

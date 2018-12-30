@@ -34,6 +34,7 @@ public:
   ~MainWindow();
   // QAction amazon();
   void getVideoState(std::function<void(Mpris::PlaybackStatus)> callback);
+  void getVolume(std::function<void(double)> callback);
 
 private slots:
   // slots for handlers of hotkeys
@@ -49,10 +50,11 @@ private slots:
   void playVideo();
   void pauseVideo();
   void togglePlayPause();
-  void setVideoVolume(qreal volume);
+  void setVideoVolume(double volume);
   void setFullScreen(bool fullscreen);
 
   void playerStateTimerFired();
+  void volumeTimerFired();
 
 protected:
   // save window geometry
@@ -75,6 +77,7 @@ private:
   std::mutex mtx_player;
   MprisPlayer player;
   QTimer playerStateTimer;
+  QTimer volumeTimer;
   void fullScreenRequested(QWebEngineFullScreenRequest request);
   void writeSettings();
   void readSettings();
