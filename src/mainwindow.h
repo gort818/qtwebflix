@@ -34,6 +34,8 @@ public:
   ~MainWindow();
   // QAction amazon();
   void getVideoState(std::function<void(Mpris::PlaybackStatus)> callback);
+  void getVideoPosition(std::function<void(qlonglong)> callback);
+  void getVideoLength(std::function<void(qlonglong)> callback);
   void getVolume(std::function<void(double)> callback);
 
 private slots:
@@ -54,6 +56,8 @@ private slots:
   void setFullScreen(bool fullscreen);
 
   void playerStateTimerFired();
+  void playerPositionTimerFired();
+  void metadataTimerFired();
   void volumeTimerFired();
 
 protected:
@@ -77,6 +81,8 @@ private:
   std::mutex mtx_player;
   MprisPlayer player;
   QTimer playerStateTimer;
+  QTimer playerPositionTimer;
+  QTimer metadataTimer;
   QTimer volumeTimer;
   void fullScreenRequested(QWebEngineFullScreenRequest request);
   void writeSettings();

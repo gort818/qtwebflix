@@ -129,8 +129,16 @@ MainWindow::MainWindow(QWidget *parent)
     player.setCanPlay(true);
     player.setCanControl(true);
 
+    player.setMetadata(QVariantMap());
+
     connect(&playerStateTimer, SIGNAL(timeout()), this, SLOT(playerStateTimerFired()));
     playerStateTimer.start(500);
+
+    connect(&playerPositionTimer, SIGNAL(timeout()), this, SLOT(playerPositionTimerFired()));
+    playerPositionTimer.start(170);
+
+    connect(&metadataTimer, SIGNAL(timeout()), this, SLOT(metadataTimerFired()));
+    metadataTimer.start(1000);
 
     connect(&volumeTimer, SIGNAL(timeout()), this, SLOT(volumeTimerFired()));
     volumeTimer.start(220);
@@ -273,6 +281,30 @@ void MainWindow::getVolume(std::function<void(double)> callback) {
           });
 }
 
+void MainWindow::getVideoPosition(std::function<void(qlonglong)> callback) {
+  QString code = ("(function () {" \
+                 "var vid = document.querySelector('video');" \
+                 "return vid ? vid.currentTime : -1;" \
+          "})()");
+  webview->page()->runJavaScript(code, [callback](const QVariant& result) {
+            double seconds = result.toDouble();
+            if (seconds < 0) callback(-1);
+            else callback(seconds / 1e-6);
+          });
+}
+
+void MainWindow::getVideoLength(std::function<void(qlonglong)> callback) {
+  QString code = ("(function () {" \
+                 "var vid = document.querySelector('video');" \
+                 "return vid ? vid.duration : -1;" \
+          "})()");
+  webview->page()->runJavaScript(code, [callback](const QVariant& result) {
+            double seconds = result.toDouble();
+            if (seconds < 0) callback(-1);
+            else callback(seconds / 1e-6);
+          });
+}
+
 void MainWindow::getVideoState(std::function<void(Mpris::PlaybackStatus)> callback) {
   QString code = ("(function () {" \
                  "var vid = document.querySelector('video');" \
@@ -343,6 +375,24 @@ void MainWindow::playerStateTimerFired() {
     getVideoState([this](Mpris::PlaybackStatus state) {
             std::lock_guard<std::mutex> l(mtx_player);
             player.setPlaybackStatus(state);
+          });
+}
+
+void MainWindow::playerPositionTimerFired() {
+    getVideoPosition([this](qlonglong useconds) {
+            std::lock_guard<std::mutex> l(mtx_player);
+            player.setPosition(useconds);
+          });
+}
+
+void MainWindow::metadataTimerFired() {
+    getVideoLength([this](qlonglong useconds) {
+            std::lock_guard<std::mutex> l(mtx_player);
+            QVariantMap metadata;
+            if (useconds >= 0) {
+              metadata[Mpris::metadataToString(Mpris::Length)] = QVariant(useconds);
+            }
+            player.setMetadata(metadata);
           });
 }
 
