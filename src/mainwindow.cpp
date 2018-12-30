@@ -299,7 +299,7 @@ void MainWindow::getMetadata(std::function<void(qlonglong, const QString&)> call
                  "var titleLabel = document.querySelector('.PlayerControls--control-element.video-title .ellipsize-text');" \
                  "var metadata = {};"\
                  "metadata.duration = vid ? vid.duration : -1;" \
-                 "metadata.title = titleLabel ? titleLabel.textContent : '';" \
+                 "metadata.title = titleLabel ? titleLabel.innerHTML.replace(/(<([^>]+)>)/g, \" \").replace(/ +(?= )/g,'').replace(/ +(?= )/g,'').trim() : '';" \
                  "return metadata;"
           "})()");
   webview->page()->runJavaScript(code, [callback](const QVariant& result) {
