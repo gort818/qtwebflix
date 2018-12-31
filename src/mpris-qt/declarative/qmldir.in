@@ -1,0 +1,3 @@
+module org.nemomobile.mpris
+plugin $${TARGET}
+typeinfo plugins.qmltypes

@@ -1,0 +1,13 @@
+prefix=/usr
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include/qt/MprisQt
+
+
+Name: MprisQt
+Description: MprisQt Library
+Version: 1.0.0
+Libs: -lmpris-qt5 
+Cflags: -I${includedir}
+Requires: Qt5Core Qt5DBus dbusextended-qt5
+

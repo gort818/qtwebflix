@@ -2,7 +2,7 @@ QT       += webenginewidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = qtwebflix
+TARGET = ../../qtwebflix
 TEMPLATE = app
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked as deprecated (the exact warnings
@@ -28,18 +28,18 @@ GIT_VERSION = $$system($$BASE_GIT_COMMAND describe --always --tags)
 DEFINES += GIT_VERSION=\\\"$$GIT_VERSION\\\"
 
 
-SOURCES += src/main.cpp\
-           src/mainwindow.cpp \
-           src/urlrequestinterceptor.cpp \
-           src/commandlineparser.cpp
+SOURCES += main.cpp\
+           mainwindow.cpp \
+           urlrequestinterceptor.cpp \
+           commandlineparser.cpp
 
-HEADERS  += src/mainwindow.h \
-            src/urlrequestinterceptor.h \
-            src/commandlineparser.h
+HEADERS  += mainwindow.h \
+                        urlrequestinterceptor.h \
+                        commandlineparser.h
 
-FORMS    += ui/mainwindow.ui
+FORMS    += ../../ui/mainwindow.ui
 
-RESOURCES = resources/jquery.qrc \
+RESOURCES = ../../resources/jquery.qrc \
 
 DISTFILES +=
 

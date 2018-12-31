@@ -1,0 +1,207 @@
+<!DOCTYPE node PUBLIC
+'-//freedesktop//DTD D-BUS Object Introspection 1.0//EN'
+'http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd'>
+<node>
+
+  <!--
+      org.mpris.MediaPlayer2:
+      @short_description: Media Player Remote Interfacing Specification
+
+      The Media Player Remote Interfacing Specification is a standard
+      D-Bus interface which aims to provide a common programmatic API
+      for controlling media players.
+  -->
+  <interface name="org.mpris.MediaPlayer2">
+
+  <!--
+      Raise:
+
+      Brings the media player's user interface to the front using any
+      appropriate mechanism available.
+
+      The media player may be unable to control how its user interface
+      is displayed, or it may not have a graphical user interface at
+      all. In this case, the CanRaise property is false and this
+      method does nothing.
+  -->
+    <method name="Raise"/>
+
+  <!--
+      Quit:
+
+      Causes the media player to stop running.
+
+      The media player may refuse to allow clients to shut it down. In
+      this case, the CanQuit property is false and this method does
+      nothing.
+
+      Note: Media players which can be D-Bus activated, or for which
+      there is no sensibly easy way to terminate a running instance
+      (via the main interface or a notification area icon for example)
+      should allow clients to use this method. Otherwise, it should
+      not be needed.
+
+      If the media player does not have a UI, this should be
+      implemented.
+  -->
+    <method name="Quit"/>
+
+  <!--
+      CanQuit:
+
+      If false, calling Quit will have no effect, and may raise a
+      NotSupported error. If true, calling Quit will cause the media
+      application to attempt to quit (although it may still be
+      prevented from quitting by the user, for example).
+
+      When this property changes, the
+      org.freedesktop.DBus.Properties.PropertiesChanged signal is
+      emitted with the new value.
+  -->
+    <property name="CanQuit" type="b" access="read"/>
+
+  <!--
+      Fullscreen:
+
+      Whether the media player is occupying the fullscreen.
+
+      This is typically used for videos. A value of true indicates
+      that the media player is taking up the full screen.
+
+      Media centre software may well have this value fixed to true
+
+      If CanSetFullscreen is true, clients may set this property to
+      true to tell the media player to enter fullscreen mode, or to
+      false to return to windowed mode.
+
+      If CanSetFullscreen is false, then attempting to set this
+      property should have no effect, and may raise an error. However,
+      even if it is true, the media player may still be unable to
+      fulfil the request, in which case attempting to set this
+      property will have no effect (but should not raise an error).
+
+      This property is optional. Clients should handle its absence
+      gracefully.
+
+      When this property changes, the
+      org.freedesktop.DBus.Properties.PropertiesChanged signal is
+      emitted with the new value.
+  -->
+    <property name="Fullscreen" type="b" access="readwrite"/>
+
+  <!--
+      CanSetFullscreen:
+
+      If false, attempting to set Fullscreen will have no effect, and
+      may raise an error. If true, attempting to set Fullscreen will
+      not raise an error, and (if it is different from the current
+      value) will cause the media player to attempt to enter or exit
+      fullscreen mode.
+
+      Note that the media player may be unable to fulfil the
+      request. In this case, the value will not change. If the media
+      player knows in advance that it will not be able to fulfil the
+      request, however, this property should be false.
+
+      This property is optional. Clients should handle its absence
+      gracefully.
+
+      When this property changes, the
+      org.freedesktop.DBus.Properties.PropertiesChanged signal is
+      emitted with the new value.
+  -->
+    <property name="CanSetFullscreen" type="b" access="read"/>
+
+  <!--
+      CanRaise:
+
+      If false, calling Raise will have no effect, and may raise a
+      NotSupported error. If true, calling Raise will cause the media
+      application to attempt to bring its user interface to the front,
+      although it may be prevented from doing so (by the window
+      manager, for example).
+
+      When this property changes, the
+      org.freedesktop.DBus.Properties.PropertiesChanged signal is
+      emitted with the new value.
+  -->
+    <property name="CanRaise" type="b" access="read"/>
+
+  <!--
+      HasTrackList:
+
+      Indicates whether the /org/mpris/MediaPlayer2 object implements
+      the org.mpris.MediaPlayer2.TrackList interface.
+
+      When this property changes, the
+      org.freedesktop.DBus.Properties.PropertiesChanged signal is
+      emitted with the new value.
+  -->
+    <property name="HasTrackList" type="b" access="read"/>
+
+  <!--
+      Identity:
+
+      A friendly name to identify the media player to users.
+
+      This should usually match the name found in .desktop files
+
+      (eg: "VLC media player").
+
+      When this property changes, the
+      org.freedesktop.DBus.Properties.PropertiesChanged signal is
+      emitted with the new value.
+  -->
+    <property name="Identity" type="s" access="read"/>
+
+  <!--
+      DesktopEntry:
+
+      The basename of an installed .desktop file which complies with
+      the Desktop entry specification, with the ".desktop" extension
+      stripped.
+
+      Example: The desktop entry file is
+      "/usr/share/applications/vlc.desktop", and this property
+      contains "vlc"
+
+      When this property changes, the
+      org.freedesktop.DBus.Properties.PropertiesChanged signal is
+      emitted with the new value.
+  -->
+    <property name="DesktopEntry" type="s" access="read"/>
+
+  <!--
+      SupportedUriSchemes:
+
+      The URI schemes supported by the media player.
+
+      This can be viewed as protocols supported by the player in
+      almost all cases. Almost every media player will include support
+      for the "file" scheme. Other common schemes are "http" and
+      "rtsp".
+
+      Note that URI schemes should be lower-case.
+
+      When this property changes, the
+      org.freedesktop.DBus.Properties.PropertiesChanged signal is
+      emitted with the new value.
+  -->
+    <property name="SupportedUriSchemes" type="as" access="read"/>
+
+  <!--
+      SupportedMimeTypes:
+
+      The mime-types supported by the media player.
+
+      Mime-types should be in the standard format (eg: audio/mpeg or
+      application/ogg).
+
+      When this property changes, the
+      org.freedesktop.DBus.Properties.PropertiesChanged signal is
+      emitted with the new value.
+  -->
+    <property name="SupportedMimeTypes" type="as" access="read"/>
+
+  </interface>
+</node>

@@ -1,0 +1,1 @@
+QTDBUSEXTENDEDLIB = dbusextended-qt5
