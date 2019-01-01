@@ -35,7 +35,7 @@ public:
   // QAction amazon();
   void getVideoState(std::function<void(Mpris::PlaybackStatus)> callback);
   void getVideoPosition(std::function<void(qlonglong)> callback);
-  void getMetadata(std::function<void(qlonglong, const QString&)> callback);
+  void getMetadata(std::function<void(qlonglong, const QString&, const QString&)> callback);
   void getVolume(std::function<void(double)> callback);
 
 private slots:

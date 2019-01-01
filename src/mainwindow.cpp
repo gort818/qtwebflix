@@ -293,13 +293,14 @@ void MainWindow::getVideoPosition(std::function<void(qlonglong)> callback) {
           });
 }
 
-void MainWindow::getMetadata(std::function<void(qlonglong, const QString&)> callback) {
+void MainWindow::getMetadata(std::function<void(qlonglong, const QString&, const QString&)> callback) {
   QString code = ("(function () {" \
                  "var vid = document.querySelector('video');" \
                  "var titleLabel = document.querySelector('.PlayerControls--control-element.video-title .ellipsize-text');" \
                  "var metadata = {};"\
                  "metadata.duration = vid ? vid.duration : -1;" \
                  "metadata.title = titleLabel ? titleLabel.innerHTML.replace(/(<([^>]+)>)/g, \" \").replace(/ +(?= )/g,'').replace(/ +(?= )/g,'').trim() : '';" \
+                 "metadata.nid = vid && vid.offsetParent ? vid.offsetParent.id : '';" \
                  "return metadata;"
           "})()");
   webview->page()->runJavaScript(code, [callback](const QVariant& result) {
@@ -310,8 +311,9 @@ void MainWindow::getMetadata(std::function<void(qlonglong, const QString&)> call
             else seconds /= 1e-6;
 
             QString title = map["title"].toString();
+            QString nid = map["nid"].toString();
 
-            callback(seconds, title);
+            callback(seconds, title, nid);
           });
 }
 
@@ -396,7 +398,7 @@ void MainWindow::playerPositionTimerFired() {
 }
 
 void MainWindow::metadataTimerFired() {
-    getMetadata([this](qlonglong lengthUseconds, const QString& title) {
+    getMetadata([this](qlonglong lengthUseconds, const QString& title, const QString& nid) {
             std::lock_guard<std::mutex> l(mtx_player);
             QVariantMap metadata;
             if (lengthUseconds >= 0) {
@@ -404,6 +406,9 @@ void MainWindow::metadataTimerFired() {
             }
             if (!title.isEmpty()) {
               metadata[Mpris::metadataToString(Mpris::Title)] = QVariant(title);
+            }
+            if (!nid.isEmpty()) {
+              metadata[Mpris::metadataToString(Mpris::TrackId)] = QVariant("/com/netflix/title/" + nid);
             }
             player.setMetadata(metadata);
           });
