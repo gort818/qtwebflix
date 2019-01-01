@@ -34,11 +34,13 @@ PKGCONFIG = mpris-qt5
 SOURCES += src/main.cpp\
            src/mainwindow.cpp \
            src/urlrequestinterceptor.cpp \
-           src/commandlineparser.cpp
+           src/commandlineparser.cpp\
+           src/mprisinterface.cpp
 
 HEADERS  += src/mainwindow.h \
             src/urlrequestinterceptor.h \
-            src/commandlineparser.h
+            src/commandlineparser.h\
+            src/mprisinterface.h
 
 FORMS    += ui/mainwindow.ui
 

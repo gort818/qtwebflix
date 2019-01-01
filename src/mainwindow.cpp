@@ -13,12 +13,9 @@
 #include <QWebEngineUrlRequestInterceptor>
 #include <QWebEngineView>
 #include <QWidget>
-#include <QNetworkRequest>
-#include <QNetworkReply>
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::MainWindow)
-
+    : QMainWindow(parent), ui(new Ui::MainWindow), mpris()
 {
   QWebEngineSettings::globalSettings()->setAttribute(
       QWebEngineSettings::PluginsEnabled, true);
@@ -121,41 +118,7 @@ MainWindow::MainWindow(QWidget *parent)
   connect(webview, SIGNAL(customContextMenuRequested(const QPoint &)), this,
           SLOT(ShowContextMenu(const QPoint &)));
 
-  {
-    std::lock_guard<std::mutex> l(mtx_player);
-    player.setServiceName(QString("QtWebFlix"));
-    player.setCanQuit(true);
-    player.setCanSetFullscreen(true);
-    player.setCanPause(true);
-    player.setCanPlay(true);
-    player.setCanControl(true);
-
-    player.setMetadata(QVariantMap());
-
-    prevTitleId = "";
-    prevArtUrl = "";
-    titleInfoFetching = false;
-
-    connect(&networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(networkManagerFinished(QNetworkReply*)));
-
-    connect(&playerStateTimer, SIGNAL(timeout()), this, SLOT(playerStateTimerFired()));
-    playerStateTimer.start(500);
-
-    connect(&playerPositionTimer, SIGNAL(timeout()), this, SLOT(playerPositionTimerFired()));
-    playerPositionTimer.start(170);
-
-    connect(&metadataTimer, SIGNAL(timeout()), this, SLOT(metadataTimerFired()));
-    metadataTimer.start(1000);
-
-    connect(&volumeTimer, SIGNAL(timeout()), this, SLOT(volumeTimerFired()));
-    volumeTimer.start(220);
-
-    connect(&player, SIGNAL(pauseRequested()), this, SLOT(pauseVideo()));
-    connect(&player, SIGNAL(playRequested()), this, SLOT(playVideo()));
-    connect(&player, SIGNAL(playPauseRequested()), this, SLOT(togglePlayPause()));
-    connect(&player, SIGNAL(fullscreenRequested(bool)), this, SLOT(setFullScreen(bool)));
-    connect(&player, SIGNAL(volumeRequested(double)), this, SLOT(setVideoVolume(double)));
-  }
+  mpris.setup(this);
 }
 
 MainWindow::~MainWindow() { delete ui; }
@@ -166,6 +129,10 @@ void MainWindow::slotShortcutF11() {
    * and back to normal window mode
    * */
   this->setFullScreen(!this->isFullScreen());
+}
+
+QWebEngineView * MainWindow::webView() const {
+  return webview;
 }
 
 // Slot handler for Ctrl + Q
@@ -253,100 +220,13 @@ void MainWindow::slotShortcutCtrlF5() {
      webview->triggerPageAction(QWebEnginePage::ReloadAndBypassCache);
 }
 
-void MainWindow::playVideo() {
-  QString code = ("document.querySelector('video').play();");
-  qDebug() << "Player playing";
-  webview->page()->runJavaScript(code);
-}
-
-void MainWindow::pauseVideo() {
-  QString code = ("document.querySelector('video').pause();");
-  qDebug() << "Player paused";
-  webview->page()->runJavaScript(code);
-}
-
-void MainWindow::togglePlayPause() {
-  QString code = ("{ var vid = document.querySelector('video'); if (vid.paused) vid.play(); else vid.pause(); }");
-  qDebug() << "Player toggled play/pause";
-  webview->page()->runJavaScript(code);
-}
-
-void MainWindow::setVideoVolume(double volume) {
-  QString code = QStringLiteral("document.querySelector('video').volume =")
-                     .append(QString::number(volume));
-  qDebug() << "Player set volume to " << volume;
-  webview->page()->runJavaScript(code);
-}
-
-void MainWindow::getVolume(std::function<void(double)> callback) {
-  QString code = ("(function () {" \
-                 "var vid = document.querySelector('video');" \
-                 "return vid ? vid.volume : -1;" \
-          "})()");
-  webview->page()->runJavaScript(code, [callback](const QVariant& result) {
-            callback(result.toDouble());
-          });
-}
-
-void MainWindow::getVideoPosition(std::function<void(qlonglong)> callback) {
-  QString code = ("(function () {" \
-                 "var vid = document.querySelector('video');" \
-                 "return vid ? vid.currentTime : -1;" \
-          "})()");
-  webview->page()->runJavaScript(code, [callback](const QVariant& result) {
-            double seconds = result.toDouble();
-            if (seconds < 0) callback(-1);
-            else callback(seconds / 1e-6);
-          });
-}
-
-void MainWindow::getMetadata(std::function<void(qlonglong, const QString&, const QString&)> callback) {
-  QString code = ("(function () {" \
-                 "var vid = document.querySelector('video');" \
-                 "var titleLabel = document.querySelector('.PlayerControls--control-element.video-title .ellipsize-text');" \
-                 "var metadata = {};"\
-                 "metadata.duration = vid ? vid.duration : -1;" \
-                 "metadata.title = titleLabel ? titleLabel.innerHTML.replace(/(<([^>]+)>)/g, \" \").replace(/ +(?= )/g,'').replace(/ +(?= )/g,'').trim() : '';" \
-                 "metadata.nid = vid && vid.offsetParent ? vid.offsetParent.id : '';" \
-                 "return metadata;"
-          "})()");
-  webview->page()->runJavaScript(code, [callback](const QVariant& result) {
-            QVariantMap map = result.toMap();
-
-            double seconds = map["duration"].toDouble();
-            if (seconds < 0) seconds = -1;
-            else seconds /= 1e-6;
-
-            QString title = map["title"].toString();
-            QString nid = map["nid"].toString();
-
-            callback(seconds, title, nid);
-          });
-}
-
-void MainWindow::getVideoState(std::function<void(Mpris::PlaybackStatus)> callback) {
-  QString code = ("(function () {" \
-                 "var vid = document.querySelector('video');" \
-                 "if (!vid) return 'stopped';" \
-                 "return vid.paused ? 'paused' : 'playing';" \
-          "})()");
-  webview->page()->runJavaScript(code, [callback](const QVariant& result) {
-            QString resultString = result.toString();
-            Mpris::PlaybackStatus status = Mpris::InvalidPlaybackStatus;
-            if (resultString == "stopped") status = Mpris::Stopped;
-            else if (resultString == "playing") status = Mpris::Playing;
-            else if (resultString == "paused") status = Mpris::Paused;
-            callback(status);
-          });
-}
-
 void MainWindow::setFullScreen(bool fullscreen) {
   if (!fullscreen) {
     this->showNormal();
   } else {
     this->showFullScreen();
   }
-  updatePlayerFullScreen();
+  mpris.updatePlayerFullScreen();
 }
 
 void MainWindow::closeEvent(QCloseEvent *) {
@@ -386,52 +266,8 @@ void MainWindow::fullScreenRequested(QWebEngineFullScreenRequest request) {
   } else {
     this->showNormal();
   }
-  updatePlayerFullScreen();
+  mpris.updatePlayerFullScreen();
   request.accept();
-}
-
-void MainWindow::playerStateTimerFired() {
-    getVideoState([this](Mpris::PlaybackStatus state) {
-            std::lock_guard<std::mutex> l(mtx_player);
-            player.setPlaybackStatus(state);
-          });
-}
-
-void MainWindow::playerPositionTimerFired() {
-    getVideoPosition([this](qlonglong useconds) {
-            std::lock_guard<std::mutex> l(mtx_player);
-            player.setPosition(useconds);
-          });
-}
-
-void MainWindow::metadataTimerFired() {
-    getMetadata([this](qlonglong lengthUseconds, const QString& title, const QString& nid) {
-            std::lock_guard<std::mutex> l(mtx_player);
-            QVariantMap metadata;
-            if (lengthUseconds >= 0) {
-              metadata[Mpris::metadataToString(Mpris::Length)] = QVariant(lengthUseconds);
-            }
-            if (!title.isEmpty()) {
-              metadata[Mpris::metadataToString(Mpris::Title)] = QVariant(title);
-            }
-            if (!nid.isEmpty()) {
-              metadata[Mpris::metadataToString(Mpris::TrackId)] = QVariant("/com/netflix/title/" + nid);
-              QString artUrl = getArtUrl(nid);
-              if (!artUrl.isEmpty()) {
-                metadata[Mpris::metadataToString(Mpris::ArtUrl)] = QVariant(artUrl);
-              }
-            }
-            player.setMetadata(metadata);
-          });
-}
-
-void MainWindow::volumeTimerFired() {
-    getVolume([this](double volume) {
-            if (volume >= 0) {
-              std::lock_guard<std::mutex> l(mtx_player);
-              player.setVolume(volume);
-            }
-          });
 }
 
 void MainWindow::ShowContextMenu(const QPoint &pos) // this is a slot
@@ -478,68 +314,6 @@ void MainWindow::ShowContextMenu(const QPoint &pos) // this is a slot
   else {
     // nothing was chosen
   }
-}
-
-void MainWindow::updatePlayerFullScreen() {
-  std::lock_guard<std::mutex> l(mtx_player);
-  player.setFullscreen(this->isFullScreen());
-}
-
-QString MainWindow::getArtUrl(const QString& nid) {
-  std::lock_guard<std::mutex> l(mtx_titleInfo);
-
-  if (nid.isEmpty()) {
-    return QString();
-  }
-
-  if (nid == prevTitleId && !prevArtUrl.isEmpty()) {
-    // The URL was asynchronously retrieved earlier.
-    return prevArtUrl;
-  }
-
-  if (titleInfoFetching) {
-    // GET request already in progress.
-    return QString();
-  }
-
-  QUrl jsonUrl("https://www.netflix.com/title/" + nid);
-  QNetworkRequest titleInfoRequest(jsonUrl);
-  titleInfoRequest.setRawHeader("Accept", "application/json");
-  titleInfoRequest.setAttribute(QNetworkRequest::FollowRedirectsAttribute, QVariant(true));
-
-  // Here we assume that nobody but `metadataTimerFired` calls us.
-  // Since the timer ticks every second, it's unlikely that we will make
-  // duplicate requests. Otherwise we would need locks.
-  titleInfoFetching = true;
-  prevArtUrl = QString();
-  prevTitleId = nid;
-
-  networkManager.get(titleInfoRequest);
-
-  // The request's under way. Hopefully, next time around the response will have
-  // arrived.
-  return QString();
-}
-
-void MainWindow::networkManagerFinished(QNetworkReply *reply) {
-  if (!reply->error()) {
-    QString html = reply->readAll();
-    QRegExp rx("\"image\": *\"([^\"]*)\"");
-    if (rx.indexIn(html) != -1) {
-      prevArtUrl = rx.cap(1);
-    } else {
-      qDebug() << "Could not find art URL in title info response. Check the regex.";
-    }
-  } else {
-    qDebug() << "Title info request failed with error:" << reply->errorString();
-  }
-
-  {
-    std::lock_guard<std::mutex> l(mtx_titleInfo);
-    titleInfoFetching = false;
-  }
-
-  reply->deleteLater();
 }
 
 void MainWindow::parseCommand() {

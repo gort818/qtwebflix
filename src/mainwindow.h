@@ -1,10 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <mutex>
-#include <functional>
-
 #include "urlrequestinterceptor.h"
+#include "mprisinterface.h"
 #include <QAction>
 #include <QByteArray>
 #include <QCommandLineParser>
@@ -14,9 +12,6 @@
 #include <QShortcut>
 #include <QWebEngineFullScreenRequest>
 #include <QWebEngineView>
-#include <QTimer>
-#include <Mpris>
-#include <MprisPlayer>
 
 namespace Ui {
 class MainWindow;
@@ -33,10 +28,8 @@ public:
     void parseCommand();
   ~MainWindow();
   // QAction amazon();
-  void getVideoState(std::function<void(Mpris::PlaybackStatus)> callback);
-  void getVideoPosition(std::function<void(qlonglong)> callback);
-  void getMetadata(std::function<void(qlonglong, const QString&, const QString&)> callback);
-  void getVolume(std::function<void(double)> callback);
+  void setFullScreen(bool fullscreen);
+  QWebEngineView *webView() const;
 
 private slots:
   // slots for handlers of hotkeys
@@ -48,19 +41,6 @@ private slots:
   void slotShortcutCtrlR();
   void slotShortcutCtrlF5();
   void ShowContextMenu(const QPoint &pos);
-
-  void playVideo();
-  void pauseVideo();
-  void togglePlayPause();
-  void setVideoVolume(double volume);
-  void setFullScreen(bool fullscreen);
-
-  void playerStateTimerFired();
-  void playerPositionTimerFired();
-  void metadataTimerFired();
-  void volumeTimerFired();
-
-  void networkManagerFinished(QNetworkReply *reply);
 
 protected:
   // save window geometry
@@ -80,23 +60,11 @@ private:
   QShortcut *keyCtrlF5; // Entity of Crtl + R hotkey
   QSettings *appSettings;
   QSettings *provSettings;
-  std::mutex mtx_player;
-  MprisPlayer player;
-  QTimer playerStateTimer;
-  QTimer playerPositionTimer;
-  QTimer metadataTimer;
-  QTimer volumeTimer;
-  QNetworkAccessManager networkManager;
-  QString prevTitleId;
-  QString prevArtUrl;
-  std::mutex mtx_titleInfo;
-  bool titleInfoFetching;
+  MprisInterface mpris;
   void fullScreenRequested(QWebEngineFullScreenRequest request);
   void writeSettings();
   void readSettings();
   void restore();
-  void updatePlayerFullScreen();
-  QString getArtUrl(const QString& nid);
 
   UrlRequestInterceptor *m_interceptor;
 };
