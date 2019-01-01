@@ -10,10 +10,11 @@
 #include <QWebEngineFullScreenRequest>
 #include <QWebEngineProfile>
 #include <QWebEngineSettings>
-
 #include <QWebEngineUrlRequestInterceptor>
 #include <QWebEngineView>
 #include <QWidget>
+#include <QNetworkRequest>
+#include <QNetworkReply>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -130,6 +131,12 @@ MainWindow::MainWindow(QWidget *parent)
     player.setCanControl(true);
 
     player.setMetadata(QVariantMap());
+
+    prevTitleId = "";
+    prevArtUrl = "";
+    titleInfoFetching = false;
+
+    connect(&networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(networkManagerFinished(QNetworkReply*)));
 
     connect(&playerStateTimer, SIGNAL(timeout()), this, SLOT(playerStateTimerFired()));
     playerStateTimer.start(500);
@@ -409,6 +416,10 @@ void MainWindow::metadataTimerFired() {
             }
             if (!nid.isEmpty()) {
               metadata[Mpris::metadataToString(Mpris::TrackId)] = QVariant("/com/netflix/title/" + nid);
+              QString artUrl = getArtUrl(nid);
+              if (!artUrl.isEmpty()) {
+                metadata[Mpris::metadataToString(Mpris::ArtUrl)] = QVariant(artUrl);
+              }
             }
             player.setMetadata(metadata);
           });
@@ -470,8 +481,65 @@ void MainWindow::ShowContextMenu(const QPoint &pos) // this is a slot
 }
 
 void MainWindow::updatePlayerFullScreen() {
-    std::lock_guard<std::mutex> l(mtx_player);
-    player.setFullscreen(this->isFullScreen());
+  std::lock_guard<std::mutex> l(mtx_player);
+  player.setFullscreen(this->isFullScreen());
+}
+
+QString MainWindow::getArtUrl(const QString& nid) {
+  std::lock_guard<std::mutex> l(mtx_titleInfo);
+
+  if (nid.isEmpty()) {
+    return QString();
+  }
+
+  if (nid == prevTitleId && !prevArtUrl.isEmpty()) {
+    // The URL was asynchronously retrieved earlier.
+    return prevArtUrl;
+  }
+
+  if (titleInfoFetching) {
+    // GET request already in progress.
+    return QString();
+  }
+
+  QUrl jsonUrl("https://www.netflix.com/title/" + nid);
+  QNetworkRequest titleInfoRequest(jsonUrl);
+  titleInfoRequest.setRawHeader("Accept", "application/json");
+  titleInfoRequest.setAttribute(QNetworkRequest::FollowRedirectsAttribute, QVariant(true));
+
+  // Here we assume that nobody but `metadataTimerFired` calls us.
+  // Since the timer ticks every second, it's unlikely that we will make
+  // duplicate requests. Otherwise we would need locks.
+  titleInfoFetching = true;
+  prevArtUrl = QString();
+  prevTitleId = nid;
+
+  networkManager.get(titleInfoRequest);
+
+  // The request's under way. Hopefully, next time around the response will have
+  // arrived.
+  return QString();
+}
+
+void MainWindow::networkManagerFinished(QNetworkReply *reply) {
+  if (!reply->error()) {
+    QString html = reply->readAll();
+    QRegExp rx("\"image\": *\"([^\"]*)\"");
+    if (rx.indexIn(html) != -1) {
+      prevArtUrl = rx.cap(1);
+    } else {
+      qDebug() << "Could not find art URL in title info response. Check the regex.";
+    }
+  } else {
+    qDebug() << "Title info request failed with error:" << reply->errorString();
+  }
+
+  {
+    std::lock_guard<std::mutex> l(mtx_titleInfo);
+    titleInfoFetching = false;
+  }
+
+  reply->deleteLater();
 }
 
 void MainWindow::parseCommand() {

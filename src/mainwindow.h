@@ -60,6 +60,8 @@ private slots:
   void metadataTimerFired();
   void volumeTimerFired();
 
+  void networkManagerFinished(QNetworkReply *reply);
+
 protected:
   // save window geometry
   void closeEvent(QCloseEvent *);
@@ -84,11 +86,17 @@ private:
   QTimer playerPositionTimer;
   QTimer metadataTimer;
   QTimer volumeTimer;
+  QNetworkAccessManager networkManager;
+  QString prevTitleId;
+  QString prevArtUrl;
+  std::mutex mtx_titleInfo;
+  bool titleInfoFetching;
   void fullScreenRequested(QWebEngineFullScreenRequest request);
   void writeSettings();
   void readSettings();
   void restore();
   void updatePlayerFullScreen();
+  QString getArtUrl(const QString& nid);
 
   UrlRequestInterceptor *m_interceptor;
 };
