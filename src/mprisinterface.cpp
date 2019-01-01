@@ -12,6 +12,7 @@ MprisInterface::MprisInterface(QWidget *parent)
 }
 
 void MprisInterface::setup(MainWindow *window) {
+  this->window = window;
   webview = window->webView();
 
   std::lock_guard<std::mutex> l(mtx_player);
@@ -50,26 +51,42 @@ void MprisInterface::setup(MainWindow *window) {
 }
 
 void MprisInterface::playVideo() {
-  QString code = ("document.querySelector('video').play();");
+  QString code = ("(function () {" \
+          "var vid = document.querySelector('video');" \
+          "if (!vid) return;" \
+          "vid.play();" \
+          "})();");
   qDebug() << "Player playing";
   webview->page()->runJavaScript(code);
 }
 
 void MprisInterface::pauseVideo() {
-  QString code = ("document.querySelector('video').pause();");
+  QString code = ("(function () {" \
+          "var vid = document.querySelector('video');" \
+          "if (!vid) return;" \
+          "vid.pause();" \
+          "})();");
   qDebug() << "Player paused";
   webview->page()->runJavaScript(code);
 }
 
 void MprisInterface::togglePlayPause() {
-  QString code = ("{ var vid = document.querySelector('video'); if (vid.paused) vid.play(); else vid.pause(); }");
+  QString code = ("(function () {" \
+          "var vid = document.querySelector('video');" \
+          "if (!vid) return;" \
+          "if (vid.paused) vid.play();" \
+          "else vid.pause();" \
+          "})();");
   qDebug() << "Player toggled play/pause";
   webview->page()->runJavaScript(code);
 }
 
 void MprisInterface::setVideoVolume(double volume) {
-  QString code = QStringLiteral("document.querySelector('video').volume =")
-                     .append(QString::number(volume));
+  QString code = ("(function () {" \
+          "var vid = document.querySelector('video');" \
+          "if (!vid) return;" \
+          "vid.volume = " + QString::number(volume) + ";" \
+          "})();");
   qDebug() << "Player set volume to " << volume;
   webview->page()->runJavaScript(code);
 }
