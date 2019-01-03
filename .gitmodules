@@ -1,0 +1,6 @@
+[submodule "lib/qtdbusextended"]
+	path = lib/qtdbusextended
+	url = https://github.com/nemomobile/qtdbusextended.git
+[submodule "lib/qtmpris"]
+	path = lib/qtmpris
+	url = https://github.com/nemomobile/qtmpris.git
