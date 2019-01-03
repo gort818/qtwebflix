@@ -1,2 +1,0 @@
-CONFIG += link_pkgconfig
-PKGCONFIG += $$TARGET

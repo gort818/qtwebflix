@@ -43,6 +43,19 @@ RESOURCES = ../../resources/jquery.qrc \
 
 DISTFILES +=
 
+INCLUDEPATH += ../qtmpris/src/ \
+            ../qtdbusextended/src/
 
+LIBS += -L$$OUT_PWD/../qtdbusextended/src/ -ldbusextended-qt5
 
+INCLUDEPATH += $$PWD/../qtdbusextended/src
+DEPENDPATH += $$PWD/../qtdbusextended/src
 
+PRE_TARGETDEPS += $$OUT_PWD/../qtdbusextended/src/libdbusextended-qt5.a
+
+LIBS += -L$$OUT_PWD/../qtmpris/src/ -lmpris-qt5
+
+INCLUDEPATH += $$PWD/../qtmpris/src
+DEPENDPATH += $$PWD/../qtmpris/src
+
+PRE_TARGETDEPS += $$OUT_PWD/../qtmpris/src/libmpris-qt5.a

@@ -1,6 +1,8 @@
- TEMPLATE = subdirs
+TEMPLATE = subdirs
 CONFIG += ordered
-SUBDIRS = src/mpris-qt \
-                    src/dbusextended-qt \
+SUBDIRS = src/qtdbusextended \
+                    src/qtmpris \
                     src/qtwebflix
-qtwebflix.depends = mpris=qt
+qtwebflix.depends = qtmpris\
+                     qtdbusextended
+

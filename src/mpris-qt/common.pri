@@ -1,1 +1,0 @@
-MPRISQTLIB = mpris-qt5

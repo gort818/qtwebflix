@@ -1,5 +1,0 @@
-QMAKE_PRL_BUILD_DIR = /home/alessandro/Projects/qtwebflix/src/dbusextended-qt/src
-QMAKE_PRO_INPUT = src.pro
-QMAKE_PRL_TARGET = libdbusextended-qt5.so.1.0.0
-QMAKE_PRL_CONFIG = lex yacc exceptions depend_includepath testcase_targets import_plugins import_qpa_plugin file_copies qmake_use qt warn_on release link_prl incremental shared release linux unix posix gcc qt create_pc create_prl no_install_prl have_target dll thread dbusadaptors dbusinterfaces moc resources
-QMAKE_PRL_VERSION = 1.0.0
