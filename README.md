@@ -1,6 +1,5 @@
-# qtwebflix <p align="center">
-<img src="./resources/qtwebflix.svg">
-</p>
+# qtwebflix 
+<img src="https://user-images.githubusercontent.com/8083855/50625087-08698480-0f3f-11e9-88a3-5c65a4ed9e4b.png">
 
 A qt webengine program to watch Netflix and other streaming services
 
