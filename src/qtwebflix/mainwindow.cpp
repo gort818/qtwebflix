@@ -9,11 +9,11 @@
 #include <QStandardPaths>
 #include <QWebEngineFullScreenRequest>
 #include <QWebEngineProfile>
-#include <QWebEngineSettings>
-
 #include <QWebEngineUrlRequestInterceptor>
 #include <QWebEngineView>
 #include <QWidget>
+#include <QWebEngineSettings>
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
