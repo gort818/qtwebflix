@@ -1,0 +1,6 @@
+[submodule "src/qtmpris"]
+	path = src/qtmpris
+	url = https://github.com/gort818/qtmpris
+[submodule "src/qtdbusextended"]
+	path = src/qtdbusextended
+	url = https://github.com/gort818/qtdbusextended
