@@ -2,6 +2,8 @@
 #include "commandlineparser.h"
 #include "ui_mainwindow.h"
 #include "urlrequestinterceptor.h"
+#include "mprisinterface.h"
+#include "netflixmprisinterface.h"
 #include <QContextMenuEvent>
 #include <QDebug>
 #include <QMenu>
@@ -15,7 +17,7 @@
 #include <QWidget>
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::MainWindow), mpris()
+    : QMainWindow(parent), ui(new Ui::MainWindow), mpris(new NetflixMprisInterface)
 {
   QWebEngineSettings::globalSettings()->setAttribute(
       QWebEngineSettings::PluginsEnabled, true);
@@ -118,7 +120,7 @@ MainWindow::MainWindow(QWidget *parent)
   connect(webview, SIGNAL(customContextMenuRequested(const QPoint &)), this,
           SLOT(ShowContextMenu(const QPoint &)));
 
-  mpris.setup(this);
+  mpris->setup(this);
 }
 
 MainWindow::~MainWindow() { delete ui; }
@@ -226,7 +228,7 @@ void MainWindow::setFullScreen(bool fullscreen) {
   } else {
     this->showFullScreen();
   }
-  mpris.updatePlayerFullScreen();
+  mpris->updatePlayerFullScreen();
 }
 
 void MainWindow::closeEvent(QCloseEvent *) {
@@ -266,7 +268,7 @@ void MainWindow::fullScreenRequested(QWebEngineFullScreenRequest request) {
   } else {
     this->showNormal();
   }
-  mpris.updatePlayerFullScreen();
+  mpris->updatePlayerFullScreen();
   request.accept();
 }
 

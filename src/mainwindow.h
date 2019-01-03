@@ -1,8 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <memory>
 #include "urlrequestinterceptor.h"
-#include "mprisinterface.h"
 #include <QAction>
 #include <QByteArray>
 #include <QCommandLineParser>
@@ -16,6 +16,8 @@
 namespace Ui {
 class MainWindow;
 }
+
+class MprisInterface;
 
 class MainWindow : public QMainWindow {
   Q_OBJECT
@@ -60,7 +62,7 @@ private:
   QShortcut *keyCtrlF5; // Entity of Crtl + R hotkey
   QSettings *appSettings;
   QSettings *provSettings;
-  MprisInterface mpris;
+  std::shared_ptr<MprisInterface> mpris;
   void fullScreenRequested(QWebEngineFullScreenRequest request);
   void writeSettings();
   void readSettings();

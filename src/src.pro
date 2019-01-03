@@ -31,13 +31,15 @@ DEFINES += GIT_VERSION=\\\"$$GIT_VERSION\\\"
 SOURCES += main.cpp\
            mainwindow.cpp \
            urlrequestinterceptor.cpp \
-           commandlineparser.cpp\
-           mprisinterface.cpp
+           commandlineparser.cpp \
+           mprisinterface.cpp \
+           netflixmprisinterface.cpp
 
 HEADERS  += mainwindow.h \
             urlrequestinterceptor.h \
-            commandlineparser.h\
-            mprisinterface.h
+            commandlineparser.h \
+            mprisinterface.h \
+            netflixmprisinterface.h
 
 FORMS    += ../ui/mainwindow.ui
 
