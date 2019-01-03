@@ -40,8 +40,10 @@ HEADERS  += src/mainwindow.h \
 FORMS    += ui/mainwindow.ui
 
 RESOURCES = resources/jquery.qrc \
+    resource.qrc
 
-DISTFILES +=
+DISTFILES += \
+    resources/qtwebflix.svg
 
 
 
