@@ -48,8 +48,6 @@ RESOURCES = ../resources/jquery.qrc \
 DISTFILES +=
 
 LIBS = -L../lib -ldbusextended-qt5 -lmpris-qt5
-#       -Wl,-Bstatic\
-#       -Wl,-Bdynamic
 
 INCLUDEPATH += ../lib/qtdbusextended/src ../lib/qtmpris/src
 
