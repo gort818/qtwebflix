@@ -46,5 +46,6 @@ DISTFILES += \
     resources/qtwebflix.svg
 
 
-
+target.path = /usr/bin/
+INSTALLS += target
 
