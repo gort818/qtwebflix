@@ -35,13 +35,14 @@ SOURCES += main.cpp\
            mprisinterface.cpp \
            dummymprisinterface.cpp \
            netflixmprisinterface.cpp
-
+	   amazonmprisinterface.cpp
 HEADERS  += mainwindow.h \
             urlrequestinterceptor.h \
             commandlineparser.h \
             mprisinterface.h \
             dummymprisinterface.h \
-            netflixmprisinterface.h
+            netflixmprisinterface.h\
+	    amazonmprisinterface.h
 
 FORMS    += ../ui/mainwindow.ui
 
