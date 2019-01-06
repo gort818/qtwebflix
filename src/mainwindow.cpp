@@ -3,7 +3,7 @@
 #include "ui_mainwindow.h"
 #include "urlrequestinterceptor.h"
 #include "mprisinterface.h"
-#include "netflixmprisinterface.h"
+#include "dummymprisinterface.h"
 #include <QContextMenuEvent>
 #include <QDebug>
 #include <QMenu>
@@ -17,7 +17,7 @@
 #include <QWidget>
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::MainWindow), mpris(new NetflixMprisInterface)
+    : QMainWindow(parent), ui(new Ui::MainWindow), mpris(new DummyMprisInterface)
 {
   QWebEngineSettings::globalSettings()->setAttribute(
       QWebEngineSettings::PluginsEnabled, true);
