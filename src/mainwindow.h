@@ -62,7 +62,7 @@ private:
   QShortcut *keyCtrlF5; // Entity of Crtl + R hotkey
   QSettings *appSettings;
   QSettings *provSettings;
-  std::shared_ptr<MprisInterface> mpris;
+  std::unique_ptr<MprisInterface> mpris;
   void fullScreenRequested(QWebEngineFullScreenRequest request);
   void writeSettings();
   void readSettings();
