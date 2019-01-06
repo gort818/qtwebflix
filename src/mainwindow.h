@@ -1,8 +1,10 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <typeindex>
 #include <memory>
 #include "urlrequestinterceptor.h"
+#include "mprisinterface.h"
 #include <QAction>
 #include <QByteArray>
 #include <QCommandLineParser>
@@ -16,8 +18,6 @@
 namespace Ui {
 class MainWindow;
 }
-
-class MprisInterface;
 
 class MainWindow : public QMainWindow {
   Q_OBJECT
@@ -62,13 +62,32 @@ private:
   QShortcut *keyCtrlF5; // Entity of Crtl + R hotkey
   QSettings *appSettings;
   QSettings *provSettings;
+  std::type_index mprisType;
   std::unique_ptr<MprisInterface> mpris;
   void fullScreenRequested(QWebEngineFullScreenRequest request);
   void writeSettings();
   void readSettings();
   void restore();
+  void exchangeMprisInterfaceIfNeeded();
 
   UrlRequestInterceptor *m_interceptor;
+
+  template<typename Interface>
+  bool setMprisInterface() {
+    std::type_index newType(typeid(Interface));
+    if (mprisType == newType) {
+      return false;
+    }
+
+    qDebug() << "Transitioning to new MPRIS interface: " << typeid(Interface).name();
+    mprisType = newType;
+
+    mpris.reset();
+
+    mpris = std::make_unique<Interface>();
+    mpris->setup(this);
+    return true;
+  }
 };
 
 #endif // MAINWINDOW_H

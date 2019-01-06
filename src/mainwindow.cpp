@@ -4,6 +4,7 @@
 #include "urlrequestinterceptor.h"
 #include "mprisinterface.h"
 #include "dummymprisinterface.h"
+#include "netflixmprisinterface.h"
 #include <QContextMenuEvent>
 #include <QDebug>
 #include <QMenu>
@@ -17,7 +18,7 @@
 #include <QWidget>
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::MainWindow), mpris(new DummyMprisInterface)
+    : QMainWindow(parent), ui(new Ui::MainWindow), mprisType(typeid(DummyMprisInterface)), mpris(new DummyMprisInterface)
 {
   QWebEngineSettings::globalSettings()->setAttribute(
       QWebEngineSettings::PluginsEnabled, true);
@@ -143,7 +144,20 @@ void MainWindow::slotShortcutCtrlQ() {
   QApplication::quit();
 }
 
-void MainWindow::finishLoading(bool) { webview->page()->runJavaScript(jQuery); }
+void MainWindow::finishLoading(bool) {
+  webview->page()->runJavaScript(jQuery);
+  exchangeMprisInterfaceIfNeeded();
+}
+
+void MainWindow::exchangeMprisInterfaceIfNeeded() {
+  QString hostname = webview->url().host();
+
+  if (hostname.endsWith("netflix.com")) {
+    setMprisInterface<NetflixMprisInterface>();
+  } else {
+    setMprisInterface<DummyMprisInterface>();
+  }
+}
 
 // Slot handler for Ctrl + W
 void MainWindow::slotShortcutCtrlW() {
