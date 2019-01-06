@@ -14,7 +14,9 @@ int main(int argc, char *argv[]) {
 
   QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
   QApplication app(argc, argv);
-  QApplication::setWindowIcon(QIcon::fromTheme(QLatin1String("netflix-desktop"), app.windowIcon()));
+   QApplication::setWindowIcon(QIcon(":/resources/qtwebflix.svg"));
+
+
   MainWindow w;
 
   w.show();
