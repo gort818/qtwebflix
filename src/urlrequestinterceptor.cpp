@@ -1,8 +1,7 @@
-#include "urlrequestinterceptor.h"
-
 #include <QWebEngineUrlRequestInterceptor>
-
 #include <QDebug>
+
+#include "urlrequestinterceptor.h"
 
 UrlRequestInterceptor::UrlRequestInterceptor(QObject *parent)
     : QWebEngineUrlRequestInterceptor(parent)

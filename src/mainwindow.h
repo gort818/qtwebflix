@@ -3,8 +3,7 @@
 
 #include <typeindex>
 #include <memory>
-#include "urlrequestinterceptor.h"
-#include "mprisinterface.h"
+
 #include <QAction>
 #include <QByteArray>
 #include <QCommandLineParser>
@@ -14,6 +13,9 @@
 #include <QShortcut>
 #include <QWebEngineFullScreenRequest>
 #include <QWebEngineView>
+
+#include "urlrequestinterceptor.h"
+#include "mprisinterface.h"
 
 namespace Ui {
 class MainWindow;

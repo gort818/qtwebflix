@@ -1,5 +1,6 @@
 #ifndef COMMANDLINEPARSER_H
 #define COMMANDLINEPARSER_H
+
 #include "mainwindow.h"
 
 class Commandlineparser {

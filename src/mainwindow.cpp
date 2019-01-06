@@ -1,10 +1,3 @@
-#include "mainwindow.h"
-#include "commandlineparser.h"
-#include "ui_mainwindow.h"
-#include "urlrequestinterceptor.h"
-#include "mprisinterface.h"
-#include "dummymprisinterface.h"
-#include "netflixmprisinterface.h"
 #include <QContextMenuEvent>
 #include <QDebug>
 #include <QMenu>
@@ -16,6 +9,14 @@
 #include <QWebEngineUrlRequestInterceptor>
 #include <QWebEngineView>
 #include <QWidget>
+
+#include "mainwindow.h"
+#include "commandlineparser.h"
+#include "ui_mainwindow.h"
+#include "urlrequestinterceptor.h"
+#include "mprisinterface.h"
+#include "dummymprisinterface.h"
+#include "netflixmprisinterface.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow), mprisType(typeid(DummyMprisInterface)), mpris(new DummyMprisInterface)
