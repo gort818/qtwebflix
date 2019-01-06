@@ -1,7 +1,3 @@
-#include "mainwindow.h"
-#include "commandlineparser.h"
-#include "ui_mainwindow.h"
-#include "urlrequestinterceptor.h"
 #include <QContextMenuEvent>
 #include <QDebug>
 #include <QMenu>
@@ -10,14 +6,20 @@
 #include <QWebEngineFullScreenRequest>
 #include <QWebEngineProfile>
 #include <QWebEngineSettings>
-
 #include <QWebEngineUrlRequestInterceptor>
 #include <QWebEngineView>
 #include <QWidget>
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::MainWindow)
+#include "mainwindow.h"
+#include "commandlineparser.h"
+#include "ui_mainwindow.h"
+#include "urlrequestinterceptor.h"
+#include "mprisinterface.h"
+#include "dummymprisinterface.h"
+#include "netflixmprisinterface.h"
 
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent), ui(new Ui::MainWindow), mprisType(typeid(DummyMprisInterface)), mpris(new DummyMprisInterface)
 {
   QWebEngineSettings::globalSettings()->setAttribute(
       QWebEngineSettings::PluginsEnabled, true);
@@ -119,6 +121,8 @@ MainWindow::MainWindow(QWidget *parent)
   webview->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(webview, SIGNAL(customContextMenuRequested(const QPoint &)), this,
           SLOT(ShowContextMenu(const QPoint &)));
+
+  mpris->setup(this);
 }
 
 MainWindow::~MainWindow() { delete ui; }
@@ -128,11 +132,11 @@ void MainWindow::slotShortcutF11() {
   /* This handler will make switching applications in full screen mode
    * and back to normal window mode
    * */
-  if (this->isFullScreen()) {
-    this->showNormal();
-  } else {
-    this->showFullScreen();
-  }
+  this->setFullScreen(!this->isFullScreen());
+}
+
+QWebEngineView * MainWindow::webView() const {
+  return webview;
 }
 
 // Slot handler for Ctrl + Q
@@ -141,7 +145,20 @@ void MainWindow::slotShortcutCtrlQ() {
   QApplication::quit();
 }
 
-void MainWindow::finishLoading(bool) { webview->page()->runJavaScript(jQuery); }
+void MainWindow::finishLoading(bool) {
+  webview->page()->runJavaScript(jQuery);
+  exchangeMprisInterfaceIfNeeded();
+}
+
+void MainWindow::exchangeMprisInterfaceIfNeeded() {
+  QString hostname = webview->url().host();
+
+  if (hostname.endsWith("netflix.com")) {
+    setMprisInterface<NetflixMprisInterface>();
+  } else {
+    setMprisInterface<DummyMprisInterface>();
+  }
+}
 
 // Slot handler for Ctrl + W
 void MainWindow::slotShortcutCtrlW() {
@@ -220,6 +237,14 @@ void MainWindow::slotShortcutCtrlF5() {
      webview->triggerPageAction(QWebEnginePage::ReloadAndBypassCache);
 }
 
+void MainWindow::setFullScreen(bool fullscreen) {
+  if (!fullscreen) {
+    this->showNormal();
+  } else {
+    this->showFullScreen();
+  }
+  mpris->updatePlayerFullScreen();
+}
 
 void MainWindow::closeEvent(QCloseEvent *) {
   // This will be called whenever this window is closed.
@@ -258,6 +283,7 @@ void MainWindow::fullScreenRequested(QWebEngineFullScreenRequest request) {
   } else {
     this->showNormal();
   }
+  mpris->updatePlayerFullScreen();
   request.accept();
 }
 

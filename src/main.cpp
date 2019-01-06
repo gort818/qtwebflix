@@ -1,5 +1,3 @@
-
-#include "mainwindow.h"
 #include <QApplication>
 #include <QLibraryInfo>
 #include <QProcess>
@@ -8,9 +6,9 @@
 #include <QWebEngineUrlRequestInterceptor>
 #include <QWebEngineView>
 
+#include "mainwindow.h"
+
 //#include <KAboutData>
-
-
 
 int main(int argc, char *argv[]) {
 

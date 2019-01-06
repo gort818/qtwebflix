@@ -1,7 +1,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "urlrequestinterceptor.h"
+#include <typeindex>
+#include <memory>
+
 #include <QAction>
 #include <QByteArray>
 #include <QCommandLineParser>
@@ -11,6 +13,10 @@
 #include <QShortcut>
 #include <QWebEngineFullScreenRequest>
 #include <QWebEngineView>
+
+#include "urlrequestinterceptor.h"
+#include "mprisinterface.h"
+
 namespace Ui {
 class MainWindow;
 }
@@ -26,6 +32,8 @@ public:
     void parseCommand();
   ~MainWindow();
   // QAction amazon();
+  void setFullScreen(bool fullscreen);
+  QWebEngineView *webView() const;
 
 private slots:
   // slots for handlers of hotkeys
@@ -56,13 +64,32 @@ private:
   QShortcut *keyCtrlF5; // Entity of Crtl + R hotkey
   QSettings *appSettings;
   QSettings *provSettings;
+  std::type_index mprisType;
+  std::unique_ptr<MprisInterface> mpris;
   void fullScreenRequested(QWebEngineFullScreenRequest request);
   void writeSettings();
   void readSettings();
   void restore();
-
+  void exchangeMprisInterfaceIfNeeded();
 
   UrlRequestInterceptor *m_interceptor;
+
+  template<typename Interface>
+  bool setMprisInterface() {
+    std::type_index newType(typeid(Interface));
+    if (mprisType == newType) {
+      return false;
+    }
+
+    qDebug() << "Transitioning to new MPRIS interface: " << typeid(Interface).name();
+    mprisType = newType;
+
+    mpris.reset();
+
+    mpris = std::make_unique<Interface>();
+    mpris->setup(this);
+    return true;
+  }
 };
 
 #endif // MAINWINDOW_H
