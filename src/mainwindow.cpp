@@ -17,6 +17,7 @@
 #include "mprisinterface.h"
 #include "dummymprisinterface.h"
 #include "netflixmprisinterface.h"
+#include "amazonmprisinterface.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow), mprisType(typeid(DummyMprisInterface)), mpris(new DummyMprisInterface)
@@ -155,6 +156,8 @@ void MainWindow::exchangeMprisInterfaceIfNeeded() {
 
   if (hostname.endsWith("netflix.com")) {
     setMprisInterface<NetflixMprisInterface>();
+  }else if (hostname.endsWith("amazon.com")) {
+     setMprisInterface<AmazonMprisInterface>();
   } else {
     setMprisInterface<DummyMprisInterface>();
   }
