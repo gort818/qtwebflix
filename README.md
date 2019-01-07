@@ -46,16 +46,31 @@ Example of playback rate visualizer.
 
 <b>Now available in the AUR</b>
 
+<h1>Instructions:</h1>
 
-<b>Requirements-</b> qt5,qtwebegine(with proprietary codecs), widvine libs
 
+<b>Requirements-</b> 
+```
+qt5
+qtwebegine(with proprietary codecs) *Most distros have this in their repos
+widevine libs
+```
 
 If your distro does not compile qtwebengine with proprietary codecs.
 
 Read this <html>http://blog.qt.io/blog/2016/06/03/netflix-qt-webengine-5-7/</html>
 
-<h1>Instructions:</h1>
 
+
+
+<b>Compiling manually</b>
+ ```
+  1. git clone --recursive https://github.com/gort818/qtwebflix.git
+  2. cd qtwebflix
+  3. qmake -config release
+  4. make
+  5. Binary will be labeled qtwebflix
+```
 
 <b>Arch and derivatives</b>
 
@@ -76,16 +91,7 @@ Read this <html>http://blog.qt.io/blog/2016/06/03/netflix-qt-webengine-5-7/</htm
        to uninstall sudo ./widevine-18.10.sh uninstall      
        Follow instructions for compiling manually
        
-<b>Compile manually</b>
-  1. Install qt5
-  2. Compile qtwebengine according to the link above
-  3. Dowload the source
-  4. cd into the folder
-  5. Type make clean
-  6. Type qmake -config release
-  7. Type make
-  8. Binary will be labeled qtwebflix
-  9. Enjoy a standalone netflix player :) f11 for fullscreen and crtl + q to quit
+
   
 Note:
 If you receiving an error loading qtwebflix try
