@@ -121,11 +121,12 @@ void AmazonMprisInterface::getVideoPosition(std::function<void(qlonglong)> callb
 void AmazonMprisInterface::getMetadata(std::function<void(qlonglong, const QString&, const QString&, const QString&)> callback) {
   QString code = ("(function () {" \
                  "var vid = document.querySelector('video');" \
-                 "var titleLabel =document.querySelector('div.webPlayer').innerText.split('X')[0].trim().replace('\\n',' ');" \
+                 "var  titleLabel =document.querySelector('div.title').innerText;" \
+                 "var subLabel  =document.querySelector('div.subtitle').innerText;"\
                  "var metadata = {};"\
                  "metadata.duration = vid ? vid.duration : -1;" \
                  "metadata.nid = vid && vid.offsetParent ? vid.offsetParent.id : '';" \
-                 "metadata.title = titleLabel;"\
+                 "metadata.title = titleLabel + subLabel;"\
                  "try { var art =document.querySelector('div.av-bgimg__div').getAttribute('style').split('url')[1].replace('(','').replace(')','');"\
                  "}catch (err ) {}"\
                  "finally {"\
