@@ -53,9 +53,9 @@ void AmazonMprisInterface::setup(MainWindow *window) {
 
 void AmazonMprisInterface::playVideo() {
   QString code = ("(function () {" \
-          "var vid = document.querySelector('video');" \
-          "if (!vid) return;" \
-          "vid.play();" \
+          "var video = document.querySelector('div.cascadesContainer').childNodes[0].childNodes[1];" \
+          "if (video == undefined) return;" \
+          "video.play();" \
           "})();");
   qDebug() << "Player playing";
   webView()->page()->runJavaScript(code);
@@ -63,9 +63,9 @@ void AmazonMprisInterface::playVideo() {
 
 void AmazonMprisInterface::pauseVideo() {
   QString code = ("(function () {" \
-          "var vid = document.querySelector('video');" \
-          "if (!vid) return;" \
-          "vid.pause();" \
+          "var video = document.querySelector('div.cascadesContainer').childNodes[0].childNodes[1];" \
+          "if (!video) return;" \
+          "video.pause();" \
           "})();");
   qDebug() << "Player paused";
   webView()->page()->runJavaScript(code);
@@ -73,10 +73,9 @@ void AmazonMprisInterface::pauseVideo() {
 
 void AmazonMprisInterface::togglePlayPause() {
   QString code = ("(function () {" \
-          "var vid = document.querySelector('video');" \
-          "if (!vid) return;" \
-          "if (vid.paused) vid.play();" \
-          "else vid.pause();" \
+          "var video = document.querySelector('div.cascadesContainer').childNodes[0].childNodes[1];" \
+          "if (video.paused) video.play();" \
+          "else video.pause();" \
           "})();");
   qDebug() << "Player toggled play/pause";
   webView()->page()->runJavaScript(code);
@@ -152,9 +151,9 @@ void AmazonMprisInterface::getMetadata(std::function<void(qlonglong, const QStri
 
 void AmazonMprisInterface::getVideoState(std::function<void(Mpris::PlaybackStatus)> callback) {
   QString code = ("(function () {" \
-                 "var vid = document.querySelector('video');" \
-                 "if (!vid) return 'stopped';" \
-                 "return vid.paused ? 'paused' : 'playing';" \
+                 "var video = document.querySelector('div.cascadesContainer').childNodes[0].childNodes[1];" \
+                 "if (!video) return 'stopped';" \
+                 "return video.paused ? 'paused' : 'playing';" \
           "})()");
   webView()->page()->runJavaScript(code, [callback](const QVariant& result) {
     QString resultString = result.toString();
