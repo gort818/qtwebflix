@@ -126,7 +126,7 @@ void AmazonMprisInterface::getMetadata(std::function<void(qlonglong, const QStri
                  "metadata.duration = vid ? vid.duration : -1;" \
                  "metadata.nid = vid && vid.offsetParent ? vid.offsetParent.id : '';" \
                  "metadata.title = titleLabel + subLabel;"\
-                 "try { var art =document.querySelector('div.av-bgimg__div').getAttribute('style').split('url')[0].replace('(','').replace(')','');"\
+                 "try { var art =document.querySelector('div.av-bgimg__div').getAttribute('style').split('url')[1].replace('(','').replace(')','');"\
                  "}catch (err ) {}"\
                  "finally {"\
                  "try{ var art = document.querySelector('div.av-fallback-packshot').childNodes[0].getAttribute('src');"\
