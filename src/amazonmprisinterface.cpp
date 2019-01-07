@@ -83,7 +83,7 @@ void AmazonMprisInterface::togglePlayPause() {
 
 void AmazonMprisInterface::setVideoVolume(double volume) {
   QString code = ("(function () {" \
-          "var vid = document.querySelector('video');" \
+          "var vid = document.querySelectorAll('video')[1];" \
           "if (!vid) return;" \
           "vid.volume = " + QString::number(volume) + ";" \
           "})();");
@@ -97,7 +97,7 @@ void AmazonMprisInterface::setFullScreen(bool fullscreen) {
 
 void AmazonMprisInterface::getVolume(std::function<void(double)> callback) {
   QString code = ("(function () {" \
-                 "var vid = document.querySelector('video');" \
+                 "var vid = document.querySelectorAll('video')[1];" \
                  "return vid ? vid.volume : -1;" \
           "})()");
   webView()->page()->runJavaScript(code, [callback](const QVariant& result) {
@@ -107,7 +107,7 @@ void AmazonMprisInterface::getVolume(std::function<void(double)> callback) {
 
 void AmazonMprisInterface::getVideoPosition(std::function<void(qlonglong)> callback) {
   QString code = ("(function () {" \
-                 "var vid = document.querySelector('video');" \
+                 "var vid = document.querySelectorAll('video')[1];" \
                  "return vid ? vid.currentTime : -1;" \
           "})()");
   webView()->page()->runJavaScript(code, [callback](const QVariant& result) {
