@@ -25,6 +25,7 @@ void AmazonMprisInterface::setup(MainWindow *window) {
     p.setCanPause(true);
     p.setCanPlay(true);
     p.setCanControl(true);
+    p.setCanSeek(true);
 
     p.setMetadata(QVariantMap());
 
@@ -35,7 +36,6 @@ void AmazonMprisInterface::setup(MainWindow *window) {
     connect(&p, SIGNAL(volumeRequested(double)), this, SLOT(setVideoVolume(double)));
   });
 
-  //connect(&networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(networkManagerFinished(QNetworkReply*)));
 
   // Connect slots and start timers.
   connect(&playerStateTimer, SIGNAL(timeout()), this, SLOT(playerStateTimerFired()));
@@ -53,7 +53,7 @@ void AmazonMprisInterface::setup(MainWindow *window) {
 
 void AmazonMprisInterface::playVideo() {
   QString code = ("(function () {" \
-          "var video = document.querySelector('div.cascadesContainer').childNodes[0].childNodes[1];" \
+          "var video =  document.querySelectorAll('video')[0];" \
           "if (video == undefined) return;" \
           "video.play();" \
           "})();");
@@ -63,7 +63,7 @@ void AmazonMprisInterface::playVideo() {
 
 void AmazonMprisInterface::pauseVideo() {
   QString code = ("(function () {" \
-          "var video = document.querySelector('div.cascadesContainer').childNodes[0].childNodes[1];" \
+          "var video =  document.querySelectorAll('video')[0];" \
           "if (!video) return;" \
           "video.pause();" \
           "})();");
@@ -73,7 +73,7 @@ void AmazonMprisInterface::pauseVideo() {
 
 void AmazonMprisInterface::togglePlayPause() {
   QString code = ("(function () {" \
-          "var video = document.querySelector('div.cascadesContainer').childNodes[0].childNodes[1];" \
+          "var video =  document.querySelectorAll('video')[0]" \
           "if (video.paused) video.play();" \
           "else video.pause();" \
           "})();");
@@ -83,7 +83,7 @@ void AmazonMprisInterface::togglePlayPause() {
 
 void AmazonMprisInterface::setVideoVolume(double volume) {
   QString code = ("(function () {" \
-          "var vid = document.querySelectorAll('video')[1];" \
+          "var vid = document.querySelectorAll('video')[0];" \
           "if (!vid) return;" \
           "vid.volume = " + QString::number(volume) + ";" \
           "})();");
@@ -97,7 +97,7 @@ void AmazonMprisInterface::setFullScreen(bool fullscreen) {
 
 void AmazonMprisInterface::getVolume(std::function<void(double)> callback) {
   QString code = ("(function () {" \
-                 "var vid = document.querySelectorAll('video')[1];" \
+                 "var vid = document.querySelectorAll('video')[0];" \
                  "return vid ? vid.volume : -1;" \
           "})()");
   webView()->page()->runJavaScript(code, [callback](const QVariant& result) {
@@ -107,8 +107,8 @@ void AmazonMprisInterface::getVolume(std::function<void(double)> callback) {
 
 void AmazonMprisInterface::getVideoPosition(std::function<void(qlonglong)> callback) {
   QString code = ("(function () {" \
-                 "var vid = document.querySelectorAll('video')[1];" \
-                 "return vid ? vid.currentTime : -1;" \
+                 "var vid = document.querySelectorAll('video')[0];" \
+                 "return vid ? vid.currentTime -10: -1;" \
           "})()");
   webView()->page()->runJavaScript(code, [callback](const QVariant& result) {
     double seconds = result.toDouble();
@@ -119,14 +119,14 @@ void AmazonMprisInterface::getVideoPosition(std::function<void(qlonglong)> callb
 
 void AmazonMprisInterface::getMetadata(std::function<void(qlonglong, const QString&, const QString&, const QString&)> callback) {
   QString code = ("(function () {" \
-                 "var vid = document.querySelectorAll('video')[1];" \
+                 "var vid = document.querySelectorAll('video')[0];" \
                  "var  titleLabel =document.querySelector('div.title').innerText;" \
                  "var subLabel  =document.querySelector('div.subtitle').innerText;"\
                  "var metadata = {};"\
                  "metadata.duration = vid ? vid.duration : -1;" \
                  "metadata.nid = vid && vid.offsetParent ? vid.offsetParent.id : '';" \
                  "metadata.title = titleLabel + subLabel;"\
-                 "try { var art =document.querySelector('div.av-bgimg__div').getAttribute('style').split('url')[1].replace('(','').replace(')','');"\
+                 "try { var art =document.querySelector('div.av-bgimg__div').getAttribute('style').split('url')[0].replace('(','').replace(')','');"\
                  "}catch (err ) {}"\
                  "finally {"\
                  "try{ var art = document.querySelector('div.av-fallback-packshot').childNodes[0].getAttribute('src');"\
@@ -151,7 +151,7 @@ void AmazonMprisInterface::getMetadata(std::function<void(qlonglong, const QStri
 
 void AmazonMprisInterface::getVideoState(std::function<void(Mpris::PlaybackStatus)> callback) {
   QString code = ("(function () {" \
-                 "var video = document.querySelector('div.cascadesContainer').childNodes[0].childNodes[1];" \
+                 "var video =  document.querySelectorAll('video')[0];" \
                  "if (!video) return 'stopped';" \
                  "return video.paused ? 'paused' : 'playing';" \
           "})()");
@@ -213,60 +213,4 @@ void AmazonMprisInterface::volumeTimerFired() {
   });
 }
 
-//QString AmazonMprisInterface::getArtUrl(const QString& nid) {
-//  std::lock_guard<std::mutex> l(mtx_titleInfo);
-
-//  if (nid.isEmpty()) {
-//    return QString();
-//  }
-
-//  if (nid == prevTitleId && !prevArtUrl.isEmpty()) {
-//    // The URL was asynchronously retrieved earlier.
-//    return prevArtUrl;
-//  }
-
-//  if (titleInfoFetching) {
-//    // GET request already in progress.
-//    return QString();
-//  }
-
-//  QUrl jsonUrl("https://www.Amazon.com/title/" + nid);
-//  QNetworkRequest titleInfoRequest(jsonUrl);
-//  titleInfoRequest.setRawHeader("Accept", "application/json");
-//  titleInfoRequest.setAttribute(QNetworkRequest::FollowRedirectsAttribute, QVariant(true));
-
-//  // Here we assume that nobody but `metadataTimerFired` calls us.
-//  // Since the timer ticks every second, it's unlikely that we will make
-//  // duplicate requests. Otherwise we would need locks.
-//  titleInfoFetching = true;
-//  prevArtUrl = QString();
-//  prevTitleId = nid;
-
-//  networkManager.get(titleInfoRequest);
-
-//  // The request's under way. Hopefully, next time around the response will have
-//  // arrived.
-//  return QString();
-//}
-
-//void AmazonMprisInterface::networkManagerFinished(QNetworkReply *reply) {
-//  if (!reply->error()) {
-//    QString html = reply->readAll();
-//    QRegExp rx("\"image\": *\"([^\"]*)\"");
-//    if (rx.indexIn(html) != -1) {
-//      prevArtUrl = rx.cap(1);
-//    } else {
-//      qDebug() << "Could not find art URL in title info response. Check the regex.";
-//    }
-//  } else {
-//    qDebug() << "Title info request failed with error:" << reply->errorString();
-//  }
-
-//  {
-//    std::lock_guard<std::mutex> l(mtx_titleInfo);
-//    titleInfoFetching = false;
-//  }
-
-//  reply->deleteLater();
-//}
 
