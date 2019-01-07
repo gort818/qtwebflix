@@ -114,7 +114,7 @@ void AmazonMprisInterface::getVideoPosition(std::function<void(qlonglong)> callb
   QString code = ("(function () {" \
                   "var vid =  document.querySelectorAll('video');" \
                   "for (i = 0; i < vid.length; ++i) { if(vid[i].getAttribute('src')) {var video = vid[i]} };"\
-                 "return video ? vid.currentTime -10: -1;" \
+                 "return video ? video.currentTime -10: -1;" \
           "})()");
   webView()->page()->runJavaScript(code, [callback](const QVariant& result) {
     double seconds = result.toDouble();
@@ -126,11 +126,12 @@ void AmazonMprisInterface::getVideoPosition(std::function<void(qlonglong)> callb
 void AmazonMprisInterface::getMetadata(std::function<void(qlonglong, const QString&, const QString&, const QString&)> callback) {
   QString code = ("(function () {" \
                  "var vid = document.querySelectorAll('video');" \
+                 "for (i = 0; i < vid.length; ++i) { if(vid[i].getAttribute('src')) {var video = vid[i]} };"\
                  "var  titleLabel =document.querySelector('div.title').innerText;" \
                  "var subLabel  =document.querySelector('div.subtitle').innerText;"\
                  "var metadata = {};"\
-                 "metadata.duration = vid ? vid.duration : -1;" \
-                 "metadata.nid = vid && vid.offsetParent ? vid.offsetParent.id : '';" \
+                 "metadata.duration = video ? video.duration : -1;" \
+                 "metadata.nid = video && video.offsetParent ? video.offsetParent.id : '';" \
                  "metadata.title = titleLabel + subLabel;"\
                  "try { var art =document.querySelector('div.av-bgimg__div').getAttribute('style').split('url')[1].replace('(','').replace(')','');"\
                  "}catch (err ) {}"\
