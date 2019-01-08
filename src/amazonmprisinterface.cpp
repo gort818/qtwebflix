@@ -34,6 +34,8 @@ void AmazonMprisInterface::setup(MainWindow *window) {
     connect(&p, SIGNAL(playPauseRequested()), this, SLOT(togglePlayPause()));
     connect(&p, SIGNAL(fullscreenRequested(bool)), this, SLOT(setFullScreen(bool)));
     connect(&p, SIGNAL(volumeRequested(double)), this, SLOT(setVideoVolume(double)));
+    connect(&p, SIGNAL(seekRequested(qlonglong )), this, SLOT(setPosition(qlonglong )));
+
   });
 
 
@@ -53,11 +55,11 @@ void AmazonMprisInterface::setup(MainWindow *window) {
 
 void AmazonMprisInterface::playVideo() {
   QString code = ("(function () {" \
-          "var vid =  document.querySelectorAll('video');" \
-          "for (i = 0; i < vid.length; ++i) { if(vid[i].getAttribute('src')) {var video = vid[i]} };"\
-          "if (video == undefined) return;" \
-          "video.play();" \
-          "})();");
+                  "var vid =  document.querySelectorAll('video');" \
+                  "for (i = 0; i < vid.length; ++i) { if(vid[i].getAttribute('src')) {var video = vid[i]} };"\
+                  "if (video == undefined) return;" \
+                  "video.play();" \
+                   "})();");
   qDebug() << "Player playing";
   webView()->page()->runJavaScript(code);
 }
@@ -66,9 +68,9 @@ void AmazonMprisInterface::pauseVideo() {
   QString code = ("(function () {" \
                   "var vid =  document.querySelectorAll('video');" \
                   "for (i = 0; i < vid.length; ++i) { if(vid[i].getAttribute('src')) {var video = vid[i]} };"\
-          "if (!video) return;" \
-          "video.pause();" \
-          "})();");
+                  "if (!video) return;" \
+                  "video.pause();" \
+                  "})();");
   qDebug() << "Player paused";
   webView()->page()->runJavaScript(code);
 }
@@ -77,9 +79,9 @@ void AmazonMprisInterface::togglePlayPause() {
   QString code = ("(function () {" \
                   "var vid =  document.querySelectorAll('video');" \
                   "for (i = 0; i < vid.length; ++i) { if(vid[i].getAttribute('src')) {var video = vid[i]} };"\
-          "if (video.paused) video.play();" \
-          "else video.pause();" \
-          "})();");
+                  "if (video.paused) video.play();" \
+                  "else video.pause();" \
+                  "})();");
   qDebug() << "Player toggled play/pause";
   webView()->page()->runJavaScript(code);
 }
@@ -88,9 +90,9 @@ void AmazonMprisInterface::setVideoVolume(double volume) {
   QString code = ("(function () {" \
                   "var vid =  document.querySelectorAll('video');" \
                   "for (i = 0; i < vid.length; ++i) { if(vid[i].getAttribute('src')) {var video = vid[i]} };"\
-          "if (!video) return;" \
-          "video.volume = " + QString::number(volume) + ";" \
-          "})();");
+                  "if (!video) return;" \
+                  "video.volume = " + QString::number(volume) + ";" \
+                 "})();");
   qDebug() << "Player set volume to " << volume;
   webView()->page()->runJavaScript(code);
 }
@@ -104,7 +106,7 @@ void AmazonMprisInterface::getVolume(std::function<void(double)> callback) {
                   "var vid =  document.querySelectorAll('video');" \
                   "for (i = 0; i < vid.length; ++i) { if(vid[i].getAttribute('src')) {var video = vid[i]} };"\
                  "return video ? video.volume : -1;" \
-          "})()");
+                 "})()");
   webView()->page()->runJavaScript(code, [callback](const QVariant& result) {
     callback(result.toDouble());
   });
@@ -115,12 +117,34 @@ void AmazonMprisInterface::getVideoPosition(std::function<void(qlonglong)> callb
                   "var vid =  document.querySelectorAll('video');" \
                   "for (i = 0; i < vid.length; ++i) { if(vid[i].getAttribute('src')) {var video = vid[i]} };"\
                  "return video ? video.currentTime -10: -1;" \
-          "})()");
+                 "})()");
   webView()->page()->runJavaScript(code, [callback](const QVariant& result) {
     double seconds = result.toDouble();
     if (seconds < 0) callback(-1);
     else callback(seconds / 1e-6);
   });
+}
+
+
+void AmazonMprisInterface::setPosition(qlonglong pos){
+    double seconds = static_cast<double>(pos);
+    //double useconds= seconds/1e+6;
+    double useconds = seconds /1e+6;
+    qDebug()<<"Seeking Position by " <<useconds <<" Seconds";
+   QString code = ("(function () {" \
+                   "var vid =  document.querySelectorAll('video');" \
+                   "for (i = 0; i < vid.length; ++i) { if(vid[i].getAttribute('src')) {var video = vid[i]} };"\
+                   "if (!video) return;" \
+                   "video.pause();"\
+                   "video.currentTime += " + QString::number(useconds) + ";" \
+                   "var timer = setInterval(function() {"\
+                   "if (video.paused && video.readyState ==4 || !video.paused) {"\
+                   "video.play();"\
+                   "clearInterval(timer);"\
+                   "}"\
+                   "}, 50);"\
+                   "})();");
+   webView()->page()->runJavaScript(code);
 }
 
 void AmazonMprisInterface::getMetadata(std::function<void(qlonglong, const QString&, const QString&, const QString&)> callback) {
@@ -162,7 +186,7 @@ void AmazonMprisInterface::getVideoState(std::function<void(Mpris::PlaybackStatu
                   "for (i = 0; i < vid.length; ++i) { if(vid[i].getAttribute('src')) {var video = vid[i]} };"\
                  "if (!video) return 'stopped';" \
                  "return video.paused ? 'paused' : 'playing';" \
-          "})()");
+                 "})()");
   webView()->page()->runJavaScript(code, [callback](const QVariant& result) {
     QString resultString = result.toString();
     Mpris::PlaybackStatus status = Mpris::InvalidPlaybackStatus;
@@ -220,5 +244,4 @@ void AmazonMprisInterface::volumeTimerFired() {
     }
   });
 }
-
 
