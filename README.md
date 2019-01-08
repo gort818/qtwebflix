@@ -6,8 +6,10 @@ A qt webengine program to watch Netflix and other streaming services
 
 ![alt text](https://i.imgur.com/jrc7vV9.jpg) 
 
-<p align="center">
+ <p align="center">
  <b> QtWebFlix on KDE Plasma Media Player and KDE Connect</b>
+  </p>
+  <p align="center">
  <img src="https://i.imgur.com/m0NMzOK.png">
  </p>
 
