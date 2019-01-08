@@ -59,22 +59,9 @@ MainWindow::MainWindow(QWidget *parent)
   connect(webview->page(), &QWebEnginePage::fullScreenRequested, this,
           &MainWindow::fullScreenRequested);
 
-  // Check if user is using arm processor(Raspberry pi)
-  QString UserAgent = this->webview->page()->profile()->httpUserAgent();
-  // qDebug() << UserAgent;
-  // qDebug() << "Changing user agent to Firefox 57";
-  // Testing User Agent
-  // UserAgent ="Mozilla/5.0 (X11; Linux x86_64; rv:57.0) Gecko/20100101
-  // Firefox/57.0";
-  // this->webview->page()->profile()->setHttpUserAgent(UserAgent);
-  // qDebug() << UserAgent.contains("Linux arm");
-  if (UserAgent.contains("Linux arm")) {
-    qDebug() << "Changing user agent for raspberry pi users";
-    QString UserAgent = "Mozilla/5.0 (X11; CrOS armv7l 6946.86.0) "
-                        "AppleWebKit/537.36 (KHTML, like Gecko) "
-                        "Chrome/51.0.2704.91 Safari/537.36";
-    this->webview->page()->profile()->setHttpUserAgent(UserAgent);
-  }
+  // UserAgent fixes for various sites and architectures
+
+
 
   // key short cuts
 
@@ -147,6 +134,11 @@ void MainWindow::slotShortcutCtrlQ() {
 }
 
 void MainWindow::finishLoading(bool) {
+    QString UserAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) QtWebEngine/5.12.0 Chrome/69.0.3497.128 Safari/537.36";
+    webview->page()->profile()->setHttpUserAgent(uaSwitcher(UserAgent));
+    QString userAgentFix =this->webview->page()->profile()->httpUserAgent();
+    qDebug()<<"normal ua"<<UserAgent;
+    qDebug()<<"fixed ua"<<userAgentFix;
   webview->page()->runJavaScript(jQuery);
   exchangeMprisInterfaceIfNeeded();
 }
@@ -361,4 +353,25 @@ void MainWindow::parseCommand() {
     this->webview->page()->profile()->setRequestInterceptor(
         this->m_interceptor);
   }
+}
+
+QString MainWindow::uaSwitcher(QString userAgent) {
+     QString hostname = webview->url().host();
+
+    if (userAgent.contains("Linux arm")) {
+      qDebug() << "Changing user agent for raspberry pi users";
+      userAgent = "Mozilla/5.0 (X11; CrOS armv7l 6946.86.0) "
+                          "AppleWebKit/537.36 (KHTML, like Gecko) "
+                          "Chrome/51.0.2704.91 Safari/537.36";
+
+     return userAgent;
+    }
+
+    else if (hostname.endsWith("amazon.com")) {
+         return "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36";
+    }
+    else {
+        return userAgent;
+    }
+
 }
