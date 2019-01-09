@@ -84,7 +84,6 @@ private:
 
     qDebug() << "Transitioning to new MPRIS interface: " << typeid(Interface).name();
     mprisType = newType;
-    mpris.release();
     mpris.reset();
 
 
