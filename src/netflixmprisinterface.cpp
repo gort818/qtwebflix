@@ -25,7 +25,7 @@ void NetflixMprisInterface::setup(MainWindow *window) {
     p.setCanPause(true);
     p.setCanPlay(true);
     p.setCanControl(true);
-
+    p.setCanSeek(true);
     p.setMetadata(QVariantMap());
 
     connect(&p, SIGNAL(pauseRequested()), this, SLOT(pauseVideo()));
@@ -33,6 +33,7 @@ void NetflixMprisInterface::setup(MainWindow *window) {
     connect(&p, SIGNAL(playPauseRequested()), this, SLOT(togglePlayPause()));
     connect(&p, SIGNAL(fullscreenRequested(bool)), this, SLOT(setFullScreen(bool)));
     connect(&p, SIGNAL(volumeRequested(double)), this, SLOT(setVideoVolume(double)));
+    connect(&p, SIGNAL(seekRequested(qlonglong )), this, SLOT(setPosition(qlonglong )));
   });
 
   connect(&networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(networkManagerFinished(QNetworkReply*)));
@@ -117,6 +118,30 @@ void NetflixMprisInterface::getVideoPosition(std::function<void(qlonglong)> call
     else callback(seconds / 1e-6);
   });
 }
+
+
+void NetflixMprisInterface::setPosition(qlonglong pos){
+    double useconds = static_cast<double>(pos);
+      useconds = useconds /1000;
+    qDebug()<<"Seeking Position by " <<useconds/1000 <<" Seconds";
+    QString code = ("(function () {" \
+                   "const videoPlayer = netflix"\
+                    ".appContext"\
+                    ".state"\
+                    ".playerApp"\
+                    ".getAPI()"\
+                    ".videoPlayer;"\
+                  "const playerSessionId = videoPlayer"\
+                    ".getAllPlayerSessionIds()[0];"\
+                  "const player = videoPlayer"\
+                   ".getVideoPlayerBySessionId(playerSessionId);"\
+                   "player.seek(player.getCurrentTime() +" +  QString::number(useconds) +");"\
+                   "})();");
+   webView()->page()->runJavaScript(code);
+   qDebug("running");
+}
+
+
 
 void NetflixMprisInterface::getMetadata(std::function<void(qlonglong, const QString&, const QString&)> callback) {
   QString code = ("(function () {" \
