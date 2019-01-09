@@ -33,7 +33,8 @@ void NetflixMprisInterface::setup(MainWindow *window) {
     connect(&p, SIGNAL(playPauseRequested()), this, SLOT(togglePlayPause()));
     connect(&p, SIGNAL(fullscreenRequested(bool)), this, SLOT(setFullScreen(bool)));
     connect(&p, SIGNAL(volumeRequested(double)), this, SLOT(setVideoVolume(double)));
-    connect(&p, SIGNAL(seekRequested(qlonglong )), this, SLOT(setPosition(qlonglong )));
+    connect(&p, SIGNAL(setPositionRequested(QDBusObjectPath,qlonglong )), this, SLOT(setPosition(QDBusObjectPath,qlonglong )));
+    connect(&p, SIGNAL(seekRequested(qlonglong )), this, SLOT(setSeek(qlonglong )));
   });
 
   connect(&networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(networkManagerFinished(QNetworkReply*)));
@@ -120,8 +121,29 @@ void NetflixMprisInterface::getVideoPosition(std::function<void(qlonglong)> call
 }
 
 
-void NetflixMprisInterface::setPosition(qlonglong pos){
+void NetflixMprisInterface::setPosition(QDBusObjectPath trackId, qlonglong pos){
     double useconds = static_cast<double>(pos);
+      useconds = useconds /1000;
+    qDebug()<<"Seeking Position by " <<useconds/1000 <<" Seconds";
+    QString code = ("(function () {" \
+                   "const videoPlayer = netflix"\
+                    ".appContext"\
+                    ".state"\
+                    ".playerApp"\
+                    ".getAPI()"\
+                    ".videoPlayer;"\
+                  "const playerSessionId = videoPlayer"\
+                    ".getAllPlayerSessionIds()[0];"\
+                  "const player = videoPlayer"\
+                   ".getVideoPlayerBySessionId(playerSessionId);"\
+                   "player.seek(" +  QString::number(useconds) +");"\
+                   "})();");
+   webView()->page()->runJavaScript(code);
+   qDebug("running");
+}
+
+void NetflixMprisInterface::setSeek(qlonglong seekPos){
+    double useconds = static_cast<double>(seekPos);
       useconds = useconds /1000;
     qDebug()<<"Seeking Position by " <<useconds/1000 <<" Seconds";
     QString code = ("(function () {" \
@@ -138,11 +160,8 @@ void NetflixMprisInterface::setPosition(qlonglong pos){
                    "player.seek(player.getCurrentTime() +" +  QString::number(useconds) +");"\
                    "})();");
    webView()->page()->runJavaScript(code);
-   qDebug("running");
+
 }
-
-
-
 void NetflixMprisInterface::getMetadata(std::function<void(qlonglong, const QString&, const QString&)> callback) {
   QString code = ("(function () {" \
                  "var vid = document.querySelector('video');" \

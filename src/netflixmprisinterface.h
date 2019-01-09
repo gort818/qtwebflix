@@ -27,7 +27,8 @@ private slots:
   void togglePlayPause();
   void setVideoVolume(double volume);
   void setFullScreen(bool fullscreen);
-  void setPosition (qlonglong pos);
+  void setPosition (QDBusObjectPath trackId,qlonglong pos);
+  void setSeek (qlonglong seekPos);
   void playerStateTimerFired();
   void playerPositionTimerFired();
   void metadataTimerFired();
