@@ -84,8 +84,9 @@ private:
 
     qDebug() << "Transitioning to new MPRIS interface: " << typeid(Interface).name();
     mprisType = newType;
-
+    mpris.release();
     mpris.reset();
+
 
     mpris = std::make_unique<Interface>();
     mpris->setup(this);
