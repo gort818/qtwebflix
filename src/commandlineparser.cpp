@@ -37,7 +37,10 @@ Commandlineparser::Commandlineparser() {
 
   QStringList webOptions = {"--register-pepper-plugins",
                             "--disable-seccomp-filter-sandbox",
-                            "--disable-logging"};
+                            "--disable-logging",
+                            "--ignore-gpu-blacklist",
+                            "--enable-gpu-rasterization",
+                            "--enable-native-gpu-memory-buffers"};
 
   QStringList args;
 
