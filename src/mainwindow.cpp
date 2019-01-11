@@ -10,18 +10,18 @@
 #include <QWebEngineView>
 #include <QWidget>
 
-#include "mainwindow.h"
+#include "amazonmprisinterface.h"
 #include "commandlineparser.h"
+#include "dummymprisinterface.h"
+#include "mainwindow.h"
+#include "mprisinterface.h"
+#include "netflixmprisinterface.h"
 #include "ui_mainwindow.h"
 #include "urlrequestinterceptor.h"
-#include "mprisinterface.h"
-#include "dummymprisinterface.h"
-#include "netflixmprisinterface.h"
-#include "amazonmprisinterface.h"
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::MainWindow), mprisType(typeid(DummyMprisInterface)), mpris(new DummyMprisInterface)
-{
+    : QMainWindow(parent), ui(new Ui::MainWindow),
+      mprisType(typeid(DummyMprisInterface)), mpris(new DummyMprisInterface) {
   QWebEngineSettings::globalSettings()->setAttribute(
       QWebEngineSettings::PluginsEnabled, true);
   appSettings = new QSettings("Qtwebflix", "Save State", this);
@@ -59,9 +59,6 @@ MainWindow::MainWindow(QWidget *parent)
   connect(webview->page(), &QWebEnginePage::fullScreenRequested, this,
           &MainWindow::fullScreenRequested);
 
-  // UserAgent fixes for various sites and architectures
-
-
 
   // key short cuts
 
@@ -91,7 +88,6 @@ MainWindow::MainWindow(QWidget *parent)
   keyCtrlR = new QShortcut(this);
   keyCtrlR->setKey(Qt::CTRL + Qt::Key_R); // Set the key code
   connect(keyCtrlR, SIGNAL(activated()), this, SLOT(slotShortcutCtrlR()));
-
 
   // Ctrl + F5
   keyCtrlF5 = new QShortcut(this);
@@ -123,9 +119,7 @@ void MainWindow::slotShortcutF11() {
   this->setFullScreen(!this->isFullScreen());
 }
 
-QWebEngineView * MainWindow::webView() const {
-  return webview;
-}
+QWebEngineView *MainWindow::webView() const { return webview; }
 
 // Slot handler for Ctrl + Q
 void MainWindow::slotShortcutCtrlQ() {
@@ -133,23 +127,15 @@ void MainWindow::slotShortcutCtrlQ() {
   QApplication::quit();
 }
 
-void MainWindow::finishLoading(bool) {
-    QString UserAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) QtWebEngine/5.12.0 Chrome/69.0.3497.128 Safari/537.36";
-    webview->page()->profile()->setHttpUserAgent(uaSwitcher(UserAgent));
-    QString userAgentFix =this->webview->page()->profile()->httpUserAgent();
-    qDebug()<<"normal ua"<<UserAgent;
-    qDebug()<<"fixed ua"<<userAgentFix;
-  webview->page()->runJavaScript(jQuery);
-  exchangeMprisInterfaceIfNeeded();
-}
+void MainWindow::finishLoading(bool) { exchangeMprisInterfaceIfNeeded(); }
 
 void MainWindow::exchangeMprisInterfaceIfNeeded() {
   QString hostname = webview->url().host();
 
   if (hostname.endsWith("netflix.com")) {
     setMprisInterface<NetflixMprisInterface>();
-  }else if (hostname.endsWith("amazon.com")) {
-     setMprisInterface<AmazonMprisInterface>();
+  } else if (hostname.endsWith("amazon.com")) {
+    setMprisInterface<AmazonMprisInterface>();
   } else {
     setMprisInterface<DummyMprisInterface>();
   }
@@ -229,7 +215,7 @@ void MainWindow::slotShortcutCtrlR() {
 }
 
 void MainWindow::slotShortcutCtrlF5() {
-     webview->triggerPageAction(QWebEnginePage::ReloadAndBypassCache);
+  webview->triggerPageAction(QWebEnginePage::ReloadAndBypassCache);
 }
 
 void MainWindow::setFullScreen(bool fullscreen) {
@@ -353,25 +339,4 @@ void MainWindow::parseCommand() {
     this->webview->page()->profile()->setRequestInterceptor(
         this->m_interceptor);
   }
-}
-
-QString MainWindow::uaSwitcher(QString userAgent) {
-     QString hostname = webview->url().host();
-
-    if (userAgent.contains("Linux arm")) {
-      qDebug() << "Changing user agent for raspberry pi users";
-      userAgent = "Mozilla/5.0 (X11; CrOS armv7l 6946.86.0) "
-                          "AppleWebKit/537.36 (KHTML, like Gecko) "
-                          "Chrome/51.0.2704.91 Safari/537.36";
-
-     return userAgent;
-    }
-
-    else if (hostname.endsWith("amazon.com")) {
-         return "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36";
-    }
-    else {
-        return userAgent;
-    }
-
 }

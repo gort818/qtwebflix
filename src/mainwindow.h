@@ -71,7 +71,6 @@ private:
   void readSettings();
   void restore();
   void exchangeMprisInterfaceIfNeeded();
-  QString uaSwitcher(QString);
 
   UrlRequestInterceptor *m_interceptor;
 
@@ -85,7 +84,6 @@ private:
     qDebug() << "Transitioning to new MPRIS interface: " << typeid(Interface).name();
     mprisType = newType;
     mpris.reset();
-
 
     mpris = std::make_unique<Interface>();
     mpris->setup(this);

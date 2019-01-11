@@ -3,7 +3,7 @@
 #include <QWidget>
 #include <QNetworkRequest>
 #include <QNetworkReply>
-
+#include <QWebEngineProfile>
 #include "mainwindow.h"
 #include "mprisinterface.h"
 #include "amazonmprisinterface.h"
@@ -17,15 +17,20 @@ AmazonMprisInterface::AmazonMprisInterface(QWidget *parent)
 
 void AmazonMprisInterface::setup(MainWindow *window) {
   MprisInterface::setup(window);
+  QString userAgentAmazon =
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36";
+  webView()->page()->profile()->setHttpUserAgent(userAgentAmazon);
   workWithPlayer([this] (MprisPlayer& p) {
     // Expose player capabilities.
+    p.setServiceName("QtWebFlix");
+    p.setIdentity("amazon");
     p.setCanQuit(true);
     p.setCanSetFullscreen(true);
     p.setCanPause(true);
     p.setCanPlay(true);
     p.setCanControl(true);
     p.setCanSeek(true);
-
     p.setMetadata(QVariantMap());
 
     connect(&p, SIGNAL(pauseRequested()), this, SLOT(pauseVideo()));

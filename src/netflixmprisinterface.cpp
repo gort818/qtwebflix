@@ -20,6 +20,7 @@ void NetflixMprisInterface::setup(MainWindow *window) {
 
   workWithPlayer([this] (MprisPlayer& p) {
     // Expose player capabilities.
+    p.setServiceName("QtWebFlix");
     p.setCanQuit(true);
     p.setCanSetFullscreen(true);
     p.setCanPause(true);

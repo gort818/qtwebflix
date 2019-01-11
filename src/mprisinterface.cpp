@@ -10,10 +10,12 @@ MprisInterface::MprisInterface(QWidget *parent)
 void MprisInterface::setup(MainWindow *window) {
   m_window = window;
 
-  workWithPlayer([] (MprisPlayer& p) {
-    p.setServiceName("QtWebFlix");
-  });
+ //testing setting service name in the seperate interfaces
+//  workWithPlayer([] (MprisPlayer& p) {
+//    p.setServiceName("QtWebFlix");
+//  });
 }
+
 
 void MprisInterface::workWithPlayer(std::function<void(MprisPlayer&)> callback) {
   std::lock_guard<std::mutex> l(m_mtx_player);
