@@ -18,10 +18,6 @@ NetflixMprisInterface::NetflixMprisInterface(QWidget *parent)
 void NetflixMprisInterface::setup(MainWindow *window) {
   MprisInterface::setup(window);
 
-  QString userAgent =
-      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) "
-      "QtWebEngine/5.12.0 Chrome/69.0.3497.128 Safari/537.36";
-  webView()->page()->profile()->setHttpUserAgent(userAgent);
   workWithPlayer([this](MprisPlayer &p) {
     // Expose player capabilities.
     p.setCanQuit(true);
