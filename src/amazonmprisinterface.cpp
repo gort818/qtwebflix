@@ -12,7 +12,8 @@ AmazonMprisInterface::AmazonMprisInterface(QWidget *parent)
     : MprisInterface(parent) {
   prevTitleId = "";
   prevArtUrl = "";
-  titleInfoFetching = false;
+  titleInfoFetching = true;
+
 }
 
 void AmazonMprisInterface::setup(MainWindow *window) {
@@ -23,8 +24,6 @@ void AmazonMprisInterface::setup(MainWindow *window) {
   webView()->page()->profile()->setHttpUserAgent(userAgentAmazon);
   workWithPlayer([this] (MprisPlayer& p) {
     // Expose player capabilities.
-    p.setServiceName("QtWebFlix");
-    p.setIdentity("amazon");
     p.setCanQuit(true);
     p.setCanSetFullscreen(true);
     p.setCanPause(true);
@@ -52,7 +51,7 @@ void AmazonMprisInterface::setup(MainWindow *window) {
   playerPositionTimer.start(170);
 
   connect(&metadataTimer, SIGNAL(timeout()), this, SLOT(metadataTimerFired()));
-  metadataTimer.start(1000);
+  metadataTimer.start(500);
 
   connect(&volumeTimer, SIGNAL(timeout()), this, SLOT(volumeTimerFired()));
   volumeTimer.start(220);
@@ -227,6 +226,7 @@ void AmazonMprisInterface::playerStateTimerFired() {
   getVideoState([this](Mpris::PlaybackStatus state) {
     workWithPlayer([&] (MprisPlayer& p) {
       p.setPlaybackStatus(state);
+      p.setServiceName("QtWebFlix-Amazon");
     });
   });
 }
