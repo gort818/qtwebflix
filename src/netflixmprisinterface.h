@@ -25,6 +25,7 @@ private slots:
   void playVideo();
   void pauseVideo();
   void togglePlayPause();
+  void goNextEpisode();
   void setVideoVolume(double volume);
   void setFullScreen(bool fullscreen);
   void setPosition (QDBusObjectPath trackId,qlonglong pos);
@@ -33,6 +34,7 @@ private slots:
   void playerPositionTimerFired();
   void metadataTimerFired();
   void volumeTimerFired();
+  void goNextTimerFired();
 
   void networkManagerFinished(QNetworkReply *reply);
 
@@ -41,6 +43,7 @@ private:
   QTimer playerPositionTimer;
   QTimer metadataTimer;
   QTimer volumeTimer;
+  QTimer goNextTimer;
   QNetworkAccessManager networkManager;
   QString prevTitleId;
   QString prevArtUrl;
@@ -53,6 +56,7 @@ private:
   void getVideoPosition(std::function<void(qlonglong)> callback);
   void getMetadata(std::function<void(qlonglong, const QString&, const QString&)> callback);
   void getVolume(std::function<void(double)> callback);
+  void canGoNext(std::function<void(bool)>callback);
 
 };
 
