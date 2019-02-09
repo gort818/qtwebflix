@@ -25,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent)
   QWebEngineSettings::globalSettings()->setAttribute(
       QWebEngineSettings::PluginsEnabled, true);
   appSettings = new QSettings("Qtwebflix", "Save State", this);
+  QWebEngineProfile::defaultProfile()->setPersistentCookiesPolicy(QWebEngineProfile::ForcePersistentCookies);
 
   // set playbackrate and read jquery file
   playRate = 1.0;
