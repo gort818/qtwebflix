@@ -132,16 +132,17 @@ void MainWindow::finishLoading(bool) { exchangeMprisInterfaceIfNeeded(); }
 
 void MainWindow::exchangeMprisInterfaceIfNeeded() {
   QString hostname = webview->url().host();
-  QString userAgentAmazon =
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.84 Safari/537.36 OPR/55.0.2994.34 (Edition beta)";
-  QString userAgentDefault =
-       "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) "
-       "QtWebEngine/5.12.0 Chrome/69.0.3497.128 Safari/537.36";
   if (hostname.endsWith("netflix.com")) {
-    webView()->page()->profile()->setHttpUserAgent(userAgentDefault);
     setMprisInterface<NetflixMprisInterface>();
   } else if (hostname.endsWith("amazon.com")) {
-    webView()->page()->profile()->setHttpUserAgent(userAgentAmazon);
+      //use javascript to change useragent to watch HD Amazon Prime Videos as using QT crashes the program.
+      QString code = "window.navigator.__defineGetter__('userAgent', function () {"
+                  "return 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.84 Safari/537.36 OPR/55.0.2994.34 (Edition beta)';"
+              "});";
+
+
+        webView()->page()->runJavaScript(code);
+
     setMprisInterface<AmazonMprisInterface>();
   } else {
     setMprisInterface<DummyMprisInterface>();
