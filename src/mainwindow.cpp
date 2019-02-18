@@ -67,7 +67,7 @@ MainWindow::MainWindow(QWidget *parent)
   actions["speed-up"] = std::make_pair(this, SLOT(slotShortcutCtrlW()));
   actions["speed-down"] = std::make_pair(this, SLOT(slotShortcutCtrlS()));
   actions["speed-default"] = std::make_pair(this, SLOT(slotShortcutCtrlR()));
-  actions["reload"] = std::make_pair(this, SLOT(this->slotShortcutCtrlF5()));
+  actions["reload"] = std::make_pair(this, SLOT(slotShortcutCtrlF5()));
 
   // default key shortcuts
   registerShortcut("fullscreen-toggle", "F11");
