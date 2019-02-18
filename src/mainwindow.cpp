@@ -24,8 +24,10 @@ MainWindow::MainWindow(QWidget *parent)
       mprisType(typeid(DummyMprisInterface)), mpris(new DummyMprisInterface) {
   QWebEngineSettings::globalSettings()->setAttribute(
       QWebEngineSettings::PluginsEnabled, true);
-  appSettings = new QSettings("Qtwebflix", "Save State", this);
-  QWebEngineProfile::defaultProfile()->setPersistentCookiesPolicy(QWebEngineProfile::ForcePersistentCookies);
+  stateSettings = new QSettings("Qtwebflix", "Save State", this);
+  keySettings = new QSettings("Qtwebflix", "keybinds", this);
+  QWebEngineProfile::defaultProfile()->setPersistentCookiesPolicy(
+      QWebEngineProfile::ForcePersistentCookies);
 
   // set playbackrate and read jquery file
   playRate = 1.0;
@@ -43,11 +45,11 @@ MainWindow::MainWindow(QWidget *parent)
   webview = new QWebEngineView;
   ui->horizontalLayout->addWidget(webview);
 
-  if (appSettings->value("site").toString() == "") {
+  if (stateSettings->value("site").toString() == "") {
     webview->setUrl(QUrl(QStringLiteral("http://netflix.com")));
 
   } else {
-    webview->setUrl(QUrl(appSettings->value("site").toString()));
+    webview->setUrl(QUrl(stateSettings->value("site").toString()));
   }
   webview->settings()->setAttribute(
       QWebEngineSettings::FullScreenSupportEnabled, true);
@@ -60,40 +62,20 @@ MainWindow::MainWindow(QWidget *parent)
   connect(webview->page(), &QWebEnginePage::fullScreenRequested, this,
           &MainWindow::fullScreenRequested);
 
+  actions["fullscreen-toggle"] = std::make_pair(this, SLOT(slotShortcutF11()));
+  actions["quit"] = std::make_pair(this, SLOT(slotShortcutCtrlQ()));
+  actions["speed-up"] = std::make_pair(this, SLOT(slotShortcutCtrlW()));
+  actions["speed-down"] = std::make_pair(this, SLOT(slotShortcutCtrlS()));
+  actions["speed-default"] = std::make_pair(this, SLOT(slotShortcutCtrlR()));
+  actions["reload"] = std::make_pair(this, SLOT(this->slotShortcutCtrlF5()));
 
-  // key short cuts
-
-  // F11
-  keyF11 = new QShortcut(this); // Initialize the object
-  keyF11->setKey(Qt::Key_F11);  // Set the key code
-  // connect handler to keypress
-  connect(keyF11, SIGNAL(activated()), this, SLOT(slotShortcutF11()));
-
-  // Ctrl + Q
-  keyCtrlQ = new QShortcut(this);         // Initialize the object
-  keyCtrlQ->setKey(Qt::CTRL + Qt::Key_Q); // Set the key code
-  // connect handler to keypress
-  connect(keyCtrlQ, SIGNAL(activated()), this, SLOT(slotShortcutCtrlQ()));
-
-  // Ctrl + W
-  keyCtrlW = new QShortcut(this);
-  keyCtrlW->setKey(Qt::CTRL + Qt::Key_W); // Set the key code
-  connect(keyCtrlW, SIGNAL(activated()), this, SLOT(slotShortcutCtrlW()));
-
-  // Ctrl + S
-  keyCtrlS = new QShortcut(this);
-  keyCtrlS->setKey(Qt::CTRL + Qt::Key_S); // Set the key code
-  connect(keyCtrlS, SIGNAL(activated()), this, SLOT(slotShortcutCtrlS()));
-
-  // Ctrl + R
-  keyCtrlR = new QShortcut(this);
-  keyCtrlR->setKey(Qt::CTRL + Qt::Key_R); // Set the key code
-  connect(keyCtrlR, SIGNAL(activated()), this, SLOT(slotShortcutCtrlR()));
-
-  // Ctrl + F5
-  keyCtrlF5 = new QShortcut(this);
-  keyCtrlF5->setKey(Qt::CTRL + Qt::Key_F5); // Set the key code
-  connect(keyCtrlF5, SIGNAL(activated()), this, SLOT(slotShortcutCtrlF5()));
+  // default key shortcuts
+  registerShortcut("fullscreen-toggle", "F11");
+  registerShortcut("quit", "Ctrl+Q");
+  registerShortcut("speed-up", "Ctrl+W");
+  registerShortcut("speed-down", "Ctrl+S");
+  registerShortcut("speed-default", "Ctrl+R");
+  registerShortcut("reload", "Ctrl+F5");
 
   // Connect finished loading boolean
   connect(webview, &QWebEngineView::loadFinished, this,
@@ -110,7 +92,10 @@ MainWindow::MainWindow(QWidget *parent)
   mpris->setup(this);
 }
 
-MainWindow::~MainWindow() { delete ui; }
+MainWindow::~MainWindow() {
+  delete ui;
+  qDeleteAll(shortcuts);
+}
 
 // Slot handler of F11
 void MainWindow::slotShortcutF11() {
@@ -130,18 +115,50 @@ void MainWindow::slotShortcutCtrlQ() {
 
 void MainWindow::finishLoading(bool) { exchangeMprisInterfaceIfNeeded(); }
 
+void MainWindow::registerShortcut(QString actionName, QString key) {
+  qDebug() << "binding " << key << " -> " << actionName;
+
+  QShortcut *shortcut = shortcuts.value(key, nullptr);
+  if (!shortcut) {
+    shortcut = new QShortcut(key, this);
+    shortcuts[key] = shortcut;
+  } else {
+    disconnect(shortcut, SIGNAL(activated()), 0, 0);
+  }
+  auto action = actions[actionName];
+  connect(shortcut, SIGNAL(activated()), action.first, action.second);
+}
+
+void MainWindow::registerMprisKeybinds() {
+  actions["play"] = std::make_pair(mpris.get(), SLOT(playVideo()));
+  actions["pause"] = std::make_pair(mpris.get(), SLOT(pauseVideo()));
+  actions["play-pause"] = std::make_pair(mpris.get(), SLOT(togglePlayPause()));
+  actions["next-episode"] = std::make_pair(mpris.get(), SLOT(goNextEpisode()));
+
+  for (auto action : keySettings->allKeys()) {
+    auto keySequence = keySettings->value(action).toStringList().join(',');
+    for (auto key :
+         keySequence.split(QRegExp("\\s+"), QString::SkipEmptyParts)) {
+      registerShortcut(action, key);
+    }
+  }
+}
+
 void MainWindow::exchangeMprisInterfaceIfNeeded() {
   QString hostname = webview->url().host();
   if (hostname.endsWith("netflix.com")) {
     setMprisInterface<NetflixMprisInterface>();
   } else if (hostname.endsWith("amazon.com")) {
-      //use javascript to change useragent to watch HD Amazon Prime Videos as using QT crashes the program.
-      QString code = "window.navigator.__defineGetter__('userAgent', function () {"
-                  "return 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.84 Safari/537.36 OPR/55.0.2994.34 (Edition beta)';"
-              "});";
+    // use javascript to change useragent to watch HD Amazon Prime Videos as
+    // using QT crashes the program.
+    QString code =
+        "window.navigator.__defineGetter__('userAgent', function () {"
+        "return 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/68.0.3440.84 Safari/537.36 "
+        "OPR/55.0.2994.34 (Edition beta)';"
+        "});";
 
-
-        webView()->page()->runJavaScript(code);
+    webView()->page()->runJavaScript(code);
 
     setMprisInterface<AmazonMprisInterface>();
   } else {
@@ -242,20 +259,20 @@ void MainWindow::closeEvent(QCloseEvent *) {
 
 void MainWindow::writeSettings() {
   // Write the values to disk in categories.
-  appSettings->setValue("state/mainWindowState", saveState());
-  appSettings->setValue("geometry/mainWindowGeometry", saveGeometry());
+  stateSettings->setValue("state/mainWindowState", saveState());
+  stateSettings->setValue("geometry/mainWindowGeometry", saveGeometry());
   QString site = webview->url().toString();
-  appSettings->setValue("site", site);
+  stateSettings->setValue("site", site);
   qDebug() << " write settings:" << site;
 }
 
 void MainWindow::restore() {
 
   QByteArray stateData =
-      appSettings->value("state/mainWindowState").toByteArray();
+      stateSettings->value("state/mainWindowState").toByteArray();
 
   QByteArray geometryData =
-      appSettings->value("geometry/mainWindowGeometry").toByteArray();
+      stateSettings->value("geometry/mainWindowGeometry").toByteArray();
 
   restoreState(stateData);
   restoreGeometry(geometryData);
