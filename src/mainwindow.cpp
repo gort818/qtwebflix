@@ -1,6 +1,5 @@
 #include <QContextMenuEvent>
 #include <QDebug>
-#include <QMenu>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QWebEngineFullScreenRequest>
@@ -25,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
   QWebEngineSettings::globalSettings()->setAttribute(
       QWebEngineSettings::PluginsEnabled, true);
   stateSettings = new QSettings("Qtwebflix", "Save State", this);
-  keySettings = new QSettings("Qtwebflix", "keybinds", this);
+  appSettings = new QSettings("Qtwebflix", "qtwebflix", this);
   QWebEngineProfile::defaultProfile()->setPersistentCookiesPolicy(
       QWebEngineProfile::ForcePersistentCookies);
 
@@ -134,14 +133,18 @@ void MainWindow::registerMprisKeybinds() {
   actions["pause"] = std::make_pair(mpris.get(), SLOT(pauseVideo()));
   actions["play-pause"] = std::make_pair(mpris.get(), SLOT(togglePlayPause()));
   actions["next-episode"] = std::make_pair(mpris.get(), SLOT(goNextEpisode()));
+  actions["seek-next"] = std::make_pair(mpris.get(), SLOT(setSeek(10)));
+  actions["seek-prev"] = std::make_pair(mpris.get(), SLOT(setSeek(-10)));
 
-  for (auto action : keySettings->allKeys()) {
-    auto keySequence = keySettings->value(action).toStringList().join(',');
+  appSettings->beginGroup("keybinds");
+  for (auto action : appSettings->allKeys()) {
+    auto keySequence = appSettings->value(action).toStringList().join(',');
     for (auto key :
          keySequence.split(QRegExp("\\s+"), QString::SkipEmptyParts)) {
       registerShortcut(action, key);
     }
   }
+  appSettings->endGroup();
 }
 
 void MainWindow::exchangeMprisInterfaceIfNeeded() {
@@ -278,7 +281,35 @@ void MainWindow::restore() {
   restoreGeometry(geometryData);
 }
 
-void MainWindow::readSettings() { restore(); }
+void MainWindow::createContextMenu(const QStringList &keys) {
+  for (const auto &i : keys) {
+    if (!i.startsWith("#")) {
+      QString url = appSettings->value(i).toString();
+      contextMenu.addAction(i, [this, url]() {
+        qDebug() << "URL is :" << url;
+        webview->setUrl(QUrl(url));
+      });
+      contextMenu.addSeparator();
+    }
+  }
+}
+
+void MainWindow::readSettings() {
+  appSettings->beginGroup("providers");
+  QStringList providers = appSettings->allKeys();
+
+  // Check if config file exists,if not create a default key.
+  if (!providers.size()) {
+    qDebug() << "Config file does not exist, creating default";
+    appSettings->setValue("netflix", "http://netflix.com");
+    appSettings->sync();
+    providers = appSettings->allKeys();
+  }
+  appSettings->endGroup();
+  createContextMenu(providers);
+
+  restore();
+}
 
 void MainWindow::fullScreenRequested(QWebEngineFullScreenRequest request) {
 
@@ -295,48 +326,8 @@ void MainWindow::fullScreenRequested(QWebEngineFullScreenRequest request) {
 
 void MainWindow::ShowContextMenu(const QPoint &pos) // this is a slot
 {
-
   QPoint globalPos = webview->mapToGlobal(pos);
-  provSettings = new QSettings("Qtwebflix", "Providers", this);
-  provSettings->setIniCodec("UTF-8");
-  provSettings->beginGroup("providers");
-  QString conf(provSettings->fileName());
-
-  // Check if config file exists,if not create a default key.
-  if (!QFile::exists(conf))
-
-  {
-    qDebug() << "Config file does not exist, creating default";
-    provSettings->setValue("netflix", "http://netflix.com");
-    provSettings->sync();
-  }
-
-  QStringList keys = provSettings->allKeys();
-
-  QMenu myMenu;
-  for (const auto &i : keys) {
-    // qDebug() << "keys" << i;
-
-    if (!i.startsWith("#")) {
-      myMenu.addAction(i);
-      myMenu.addSeparator();
-    }
-  }
-
-  QAction *selectedItem = myMenu.exec(globalPos);
-
-  if (selectedItem == nullptr) {
-    return;
-  } else if (selectedItem) {
-    QString url = provSettings->value(selectedItem->text()).toString();
-    qDebug() << "URL is :" << url;
-    webview->setUrl(QUrl(url));
-    provSettings->endGroup();
-  }
-
-  else {
-    // nothing was chosen
-  }
+  QAction *selectedItem = contextMenu.exec(globalPos);
 }
 
 void MainWindow::parseCommand() {

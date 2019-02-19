@@ -10,6 +10,7 @@
 #include <QCommandLineParser>
 #include <QMainWindow>
 #include <QMap>
+#include <QMenu>
 #include <QMessageBox>
 #include <QPair>
 #include <QSettings>
@@ -62,8 +63,9 @@ private:
   QString playRateStr;
 
   QSettings *stateSettings;
-  QSettings *keySettings;
-  QSettings *provSettings;
+  QSettings *appSettings;
+
+  QMenu contextMenu;
 
   std::type_index mprisType;
   std::unique_ptr<MprisInterface> mpris;
@@ -75,6 +77,7 @@ private:
   void exchangeMprisInterfaceIfNeeded();
   void registerShortcut(QString, QString);
   void registerMprisKeybinds();
+  void createContextMenu(const QStringList &keys);
 
   QMap<QString, std::pair<const QObject *, const char *>> actions;
   QMap<QString, QShortcut *> shortcuts;
