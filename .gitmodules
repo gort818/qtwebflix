@@ -3,4 +3,4 @@
 	url = https://github.com/nemomobile/qtdbusextended.git
 [submodule "lib/qtmpris"]
 	path = lib/qtmpris
-	url = https://github.com/nemomobile/qtmpris.git
+	url = https://git.merproject.org/mer-core/qtmpris
