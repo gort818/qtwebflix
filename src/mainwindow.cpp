@@ -12,7 +12,7 @@
 
 #include "amazonmprisinterface.h"
 #include "commandlineparser.h"
-#include "dummymprisinterface.h"
+#include "defaultmprisinterface.h"
 #include "mainwindow.h"
 #include "mprisinterface.h"
 #include "netflixmprisinterface.h"
@@ -21,7 +21,7 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow),
-      mprisType(typeid(DummyMprisInterface)), mpris(new DummyMprisInterface) {
+      mprisType(typeid(DefaultMprisInterface)), mpris(new DefaultMprisInterface) {
   QWebEngineSettings::globalSettings()->setAttribute(
       QWebEngineSettings::PluginsEnabled, true);
   appSettings = new QSettings("Qtwebflix", "Save State", this);
@@ -44,8 +44,7 @@ MainWindow::MainWindow(QWidget *parent)
   ui->horizontalLayout->addWidget(webview);
 
   if (appSettings->value("site").toString() == "") {
-    webview->setUrl(QUrl(QStringLiteral("http://netflix.com")));
-
+    webview->setUrl(QUrl(QStringLiteral("https://netflix.com")));
   } else {
     webview->setUrl(QUrl(appSettings->value("site").toString()));
   }
@@ -145,7 +144,7 @@ void MainWindow::exchangeMprisInterfaceIfNeeded() {
 
     setMprisInterface<AmazonMprisInterface>();
   } else {
-    setMprisInterface<DummyMprisInterface>();
+    setMprisInterface<DefaultMprisInterface>();
   }
 }
 
@@ -330,7 +329,7 @@ void MainWindow::parseCommand() {
   if (parser.providerIsSet()) {
     if (parser.getProvider() == "") {
       qDebug() << "site is invalid reditecting to netflix.com";
-      webview->setUrl(QUrl(QStringLiteral("http://netflix.com")));
+      webview->setUrl(QUrl(QStringLiteral("https://netflix.com")));
     } else if (parser.getProvider() != "") {
       qDebug() << "site is set to" << parser.getProvider();
       webview->setUrl(QUrl::fromUserInput(parser.getProvider()));
