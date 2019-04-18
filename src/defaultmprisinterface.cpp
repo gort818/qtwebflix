@@ -210,7 +210,7 @@ void DefaultMprisInterface::getMetadata(
        "}"
        "var metadata = {};"
        "metadata.duration = video ? video.duration : -1;"
-       "metadata.nid = video && video.offsetParent ? video.offsetParent.id : '';"
+       "metadata.nid = '';"
        "metadata.title = titleLabel;"
        "var art = '';"
        "metadata.arturl= art;"
