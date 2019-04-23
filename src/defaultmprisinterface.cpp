@@ -62,11 +62,9 @@ void DefaultMprisInterface::setup(MainWindow *window) {
 
 void DefaultMprisInterface::playVideo() {
   QString code = ("(function () {"
-                  "var vid =  document.querySelectorAll('video');"
-                  "for (i = 0; i < vid.length; ++i) { "
-                  "if(vid[i].getAttribute('src')) {var video = vid[i]} };"
-                  "if (video == undefined) return;"
-                  "video.play();"
+                  "var vid = document.querySelectorAll('video');"
+                  "for (let i = 0, n = vid.length; i < n; ++i) { "
+                  "if (vid[i].getAttribute('src')) vid[i].play();}"
                   "})();");
   qDebug() << "Player playing";
   webView()->page()->runJavaScript(code);
@@ -74,11 +72,9 @@ void DefaultMprisInterface::playVideo() {
 
 void DefaultMprisInterface::pauseVideo() {
   QString code = ("(function () {"
-                  "var vid =  document.querySelectorAll('video');"
-                  "for (i = 0; i < vid.length; ++i) { "
-                  "if(vid[i].getAttribute('src')) {var video = vid[i]} };"
-                  "if (!video) return;"
-                  "video.pause();"
+                  "var vid = document.querySelectorAll('video');"
+                  "for (let i = 0, n = vid.length; i < n; ++i) { "
+                  "if (vid[i].getAttribute('src')) vid[i].pause();}"
                   "})();");
   qDebug() << "Player paused";
   webView()->page()->runJavaScript(code);
@@ -86,11 +82,11 @@ void DefaultMprisInterface::pauseVideo() {
 
 void DefaultMprisInterface::togglePlayPause() {
   QString code = ("(function () {"
-                  "var vid =  document.querySelectorAll('video');"
-                  "for (i = 0; i < vid.length; ++i) { "
-                  "if(vid[i].getAttribute('src')) {var video = vid[i]} };"
-                  "if (video.paused) video.play();"
-                  "else video.pause();"
+                  "var vid = document.querySelectorAll('video');"
+                  "for (let i = 0, n = vid.length; i < n; ++i) { "
+                  "if (vid[i].getAttribute('src')) { "
+                  "if (vid[i].paused) vid[i].play();"
+                  "else vid[i].pause();}}"
                   "})();");
   qDebug() << "Player toggled play/pause";
   webView()->page()->runJavaScript(code);
@@ -98,14 +94,13 @@ void DefaultMprisInterface::togglePlayPause() {
 
 void DefaultMprisInterface::setVideoVolume(double volume) {
   QString code = ("(function () {"
-                  "var vid =  document.querySelectorAll('video');"
-                  "for (i = 0; i < vid.length; ++i) { "
-                  "if(vid[i].getAttribute('src')) {var video = vid[i]} };"
+                  "var vid = document.querySelectorAll('video');"
+                  "for (let i = 0, n = vid.length; i < n; ++i) { "
+                  "if (vid[i].getAttribute('src')) {var video = vid[i];} } "
                   "if (!video) return;"
-                  "video.volume = " +
-                  QString::number(volume) +
-                  ";"
-                  "})();");
+                  "video.volume = " + 
+                  QString::number(volume) + 
+                  ";})();");
   qDebug() << "Player set volume to " << volume;
   webView()->page()->runJavaScript(code);
 }
@@ -116,10 +111,10 @@ void DefaultMprisInterface::setFullScreen(bool fullscreen) {
 
 void DefaultMprisInterface::getVolume(std::function<void(double)> callback) {
   QString code = ("(function () {"
-                  "var vid =  document.querySelectorAll('video');"
-                  "for (i = 0; i < vid.length; ++i) { "
-                  "if(vid[i].getAttribute('src')) {var video = vid[i]} };"
-                  "return video ? video.volume : -1;"
+                  "var vid = document.querySelectorAll('video');"
+                  "for (let i = 0, n = vid.length; i < n; ++i) { "
+                  "if (vid[i].getAttribute('src')) {var video = vid[i];} } "
+                  "return (video) ? video.volume : -1;"
                   "})()");
   webView()->page()->runJavaScript(code, [callback](const QVariant &result) {
     callback(result.toDouble());
@@ -129,10 +124,10 @@ void DefaultMprisInterface::getVolume(std::function<void(double)> callback) {
 void DefaultMprisInterface::getVideoPosition(
     std::function<void(qlonglong)> callback) {
   QString code = ("(function () {"
-                  "var vid =  document.querySelectorAll('video');"
-                  "for (i = 0; i < vid.length; ++i) { "
-                  "if(vid[i].getAttribute('src')) {var video = vid[i]} };"
-                  "return video ? video.currentTime : -1;"
+                  "var vid = document.querySelectorAll('video');"
+                  "for (let i = 0, n = vid.length; i < n; ++i) { "
+                  "if (vid[i].getAttribute('src')) {var video = vid[i];} } "
+                  "return (video) ? video.currentTime : -1;"
                   "})()");
   webView()->page()->runJavaScript(code, [callback](const QVariant &result) {
     double seconds = result.toDouble();
@@ -149,18 +144,19 @@ void DefaultMprisInterface::setPosition(QDBusObjectPath trackId, qlonglong pos) 
   double useconds = seconds / 1e+6;
   qDebug() << "set Position to " << useconds << " Seconds";
   QString code = ("(function () {"
-                  "var vid =  document.querySelectorAll('video');"
-                  "for (i = 0; i < vid.length; ++i) { "
-                  "if(vid[i].getAttribute('src')) {var video = vid[i]} };"
+                  "var vid = document.querySelectorAll('video');"
+                  "for (let i = 0, n = vid.length; i < n; ++i) { "
+                  "if (vid[i].getAttribute('src')) {"
+                  "var video = vid[i]; break;} } "
                   "if (!video) return;"
                   "video.pause();"
-                  "video.currentTime = " +
-                  QString::number(useconds) +
+                  "video.currentTime = " + 
+                  QString::number(useconds) + 
                   ";"
-                  "var timer = setInterval(function() {"
-                  "if (video.paused && video.readyState ==4 || !video.paused) {"
+                  "var sptimer = setInterval(function() {"
+                  "if (video.paused && video.readyState == 4 || !video.paused) {"
                   "video.play();"
-                  "clearInterval(timer);"
+                  "clearInterval(sptimer);"
                   "}"
                   "}, 50);"
                   "})();");
@@ -173,18 +169,19 @@ void DefaultMprisInterface::setSeek(qlonglong seekPos) {
   double useconds = seconds / 1e+6;
   qDebug() << "Seeking Position by " << useconds << " Seconds";
   QString code = ("(function () {"
-                  "var vid =  document.querySelectorAll('video');"
-                  "for (i = 0; i < vid.length; ++i) { "
-                  "if(vid[i].getAttribute('src')) {var video = vid[i]} };"
+                  "var vid = document.querySelectorAll('video');"
+                  "for (let i = 0, n = vid.length; i < n; ++i) { "
+                  "if (vid[i].getAttribute('src')) {"
+                  "var video = vid[i]; break;} };"
                   "if (!video) return;"
                   "video.pause();"
-                  "video.currentTime +=" +
-                  QString::number(useconds) +
+                  "video.currentTime += " + 
+                  QString::number(useconds) + 
                   ";"
-                  "var timer = setInterval(function() {"
-                  "if (video.paused && video.readyState ==4 || !video.paused) {"
+                  "var sstimer = setInterval(function() {"
+                  "if (video.paused && video.readyState == 4 || !video.paused) {"
                   "video.play();"
-                  "clearInterval(timer);"
+                  "clearInterval(sstimer);"
                   "}"
                   "}, 50);"
                   "})();");
@@ -198,9 +195,9 @@ void DefaultMprisInterface::getMetadata(
   QString code =
       ("(function () {"
        "var vid = document.querySelectorAll('video');"
-       "for (i = 0; i < vid.length; ++i) {"
-         "if(vid[i].getAttribute('src')) {"
-           "var video = vid[i];"
+       "for (let i = 0, n = vid.length; i < n; ++i) {"
+         "if (vid[i].getAttribute('src') && vid[i].duration) {"
+           "var duration = vid[i].duration;"
         "}"
        "};"
        "try {"
@@ -209,7 +206,7 @@ void DefaultMprisInterface::getMetadata(
          "var titleLabel = 'Playing Video'"
        "}"
        "var metadata = {};"
-       "metadata.duration = video ? video.duration : -1;"
+       "metadata.duration = (duration) ? duration : -1;"
        "metadata.nid = '';"
        "metadata.title = titleLabel;"
        "var art = '';"
@@ -236,11 +233,12 @@ void DefaultMprisInterface::getMetadata(
 void DefaultMprisInterface::getVideoState(
     std::function<void(Mpris::PlaybackStatus)> callback) {
   QString code = ("(function () {"
-                  "var vid =  document.querySelectorAll('video');"
-                  "for (i = 0; i < vid.length; ++i) { "
-                  "if(vid[i].getAttribute('src')) {var video = vid[i]} };"
-                  "if (!video) return 'stopped';"
-                  "return video.paused ? 'paused' : 'playing';"
+                  "var vid = document.querySelectorAll('video');"
+                  "for (let i = 0, n = vid.length; i < n; ++i) { "
+                  "if (vid[i].getAttribute('src')) {"
+                  "return (vid[i].paused) ? 'paused' : 'playing';"
+                  "}} "
+                  "return 'stopped';"
                   "})()");
   webView()->page()->runJavaScript(code, [callback](const QVariant &result) {
     QString resultString = result.toString();
