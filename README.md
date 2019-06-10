@@ -1,20 +1,17 @@
 # qtwebflix 
-<img src="https://user-images.githubusercontent.com/8083855/50625087-08698480-0f3f-11e9-88a3-5c65a4ed9e4b.png">
 
-A qt webengine program to watch Netflix and other streaming services
+![logo](https://user-images.githubusercontent.com/8083855/50625087-08698480-0f3f-11e9-88a3-5c65a4ed9e4b.png)
 
+A Qt webengine browser application to watch Netflix and other streaming services.
 
-![alt text](https://i.imgur.com/jrc7vV9.jpg) 
+![screenshot](https://i.imgur.com/jrc7vV9.jpg) 
 
- <p align="center">
- <b> QtWebFlix on KDE Plasma Media Player and KDE Connect</b>
-  </p>
-  <p align="center">
- <img src="https://i.imgur.com/m0NMzOK.png">
- </p>
+ **QtWebFlix on KDE Plasma Media Player and KDE Connect**
+ 
+![kdeconnect-screenshot](https://i.imgur.com/m0NMzOK.png)
 
+## Usage
 
-<b> Usage </b>
 ```
 Usage: qtwebflix [options]
 Qtwebflix Help
@@ -39,36 +36,33 @@ Options:
   -n, --nonhd                  Do not use HD addon, you will be limited to 720p
 ```
 
-
 Example of playback rate visualizer.
-![alt text](https://i.imgur.com/B26CloV.png)
-<b>As of March 30th 2018:</b>
 
-       Now supports Netflix in 1080P.
-       Also supports adding other streaming services go to ~/.config/Qtwebflix/Providers.conf and add your service
-       ex. netflix=https://netflix.com
-       To use these other services right clicking will bring up a context menu with all available options.
+![playback-rate-screenshot](https://i.imgur.com/B26CloV.png)
 
-<b>Now available in the AUR</b>
+## News
 
-<h1>Instructions:</h1>
+**As of March 30th 2018:**
 
+* Now supports Netflix in 1080P.
+* Also supports adding other streaming services. Go to `~/.config/Qtwebflix/Providers.conf` and add your service. Example:
+       
+       Netflix=https://netflix.com
 
-<b>Requirements-</b> 
+* To use other services right click inside the application and a context menu will bring up all available options you added.
+
+## Instructions
+
+### Requirements 
 ```
-qt5
-qtwebegine(with proprietary codecs) *Most distros have this in their repos
-widevine libs
+  qt5
+  qtwebegine(with proprietary codecs) *Most distros have this in their repos
+  widevine libs
 ```
 
-If your distro does not compile qtwebengine with proprietary codecs.
+If your distro does not compile qtwebengine with proprietary codecs, read [this](http://blog.qt.io/blog/2016/06/03/netflix-qt-webengine-5-7/).
 
-Read this <html>http://blog.qt.io/blog/2016/06/03/netflix-qt-webengine-5-7/</html>
-
-
-
-
-<b>Compiling manually</b>
+### Compiling manually
  ```
   1. git clone --recursive https://github.com/gort818/qtwebflix.git
   2. cd qtwebflix
@@ -77,42 +71,40 @@ Read this <html>http://blog.qt.io/blog/2016/06/03/netflix-qt-webengine-5-7/</htm
   5. Binary will be labeled qtwebflix
 ```
 
-<b>Arch and derivatives</b>
+### Distribution packages
 
-   Refer the aur package <html>https://aur.archlinux.org/packages/qtwebflix-git/</html>
-      
+#### Arch and derivatives
+
+   Refer the [AUR package](https://aur.archlinux.org/packages/qtwebflix-git/).
+   
+#### Ubuntu
        
- <b>Ubuntu 17.04/17.10/18.04 and Linux Mint 19 - qtwebengine comes with proprietary codecs</b>
+**Ubuntu 17.04/17.10/18.04 and Linux Mint 19 - qtwebengine comes with proprietary codecs**
 
        chmod +x widevine.sh
        sudo ./widevine.sh
        to uninstall sudo ./widevine.sh uninstall
        Follow instructions for compiling manually
        
-<b> Ubuntu 18.10</b>
+**Ubuntu 18.10**
  
        chmod +x widevine-18.10.sh
        sudo ./widevine-18.10.sh
        to uninstall sudo ./widevine-18.10.sh uninstall      
        Follow instructions for compiling manually
        
+**Note**
 
-  
-Note:
-If you receiving an error loading qtwebflix try
-
+If you receiving an error loading qtwebflix try:
 
        qtwebflix --register-pepper-plugins="/usr/lib/qt/plugins/ppapi/libwidevinecdmadapter.so; application/x-ppapi-widevine-cdm"
     
-    
+### Troubleshooting 
    
-<b> HBO Now and HBO GO are currently not working </b>
+**HBO Now and HBO GO are currently not working**
 
- Current workarounds :
+Current workarounds:
  
- 1. If you have amazon you can add your HBO service.
-[instructions](https://help.hbogo.com/hc/en-us/articles/204872107-Watching-HBO-on-Amazon-Prime-Video-Channels)
+ 1. If you have Amazon you can add your HBO service. Read [instructions](https://help.hbogo.com/hc/en-us/articles/204872107-Watching-HBO-on-Amazon-Prime-Video-Channels).
 
-![alt text](https://i.imgur.com/8f7lsED.png)
-
-
+![hbo-screenshot](https://i.imgur.com/8f7lsED.png)
