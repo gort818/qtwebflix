@@ -282,16 +282,18 @@ void MainWindow::restore() {
 }
 
 void MainWindow::createContextMenu(const QStringList &keys) {
+  appSettings->beginGroup("providers");
   for (const auto &i : keys) {
     if (!i.startsWith("#")) {
-      QString url = appSettings->value(i).toString();
+      auto url = appSettings->value(i).toUrl();
       contextMenu.addAction(i, [this, url]() {
-        qDebug() << "URL is :" << url;
+        qDebug() << "Switching to : " << url;
         webview->setUrl(QUrl(url));
       });
       contextMenu.addSeparator();
     }
   }
+  appSettings->endGroup();
 }
 
 void MainWindow::readSettings() {
@@ -327,7 +329,7 @@ void MainWindow::fullScreenRequested(QWebEngineFullScreenRequest request) {
 void MainWindow::ShowContextMenu(const QPoint &pos) // this is a slot
 {
   QPoint globalPos = webview->mapToGlobal(pos);
-  QAction *selectedItem = contextMenu.exec(globalPos);
+  contextMenu.exec(globalPos);
 }
 
 void MainWindow::parseCommand() {
