@@ -31,24 +31,17 @@ class MainWindow : public QMainWindow {
 
 public:
   explicit MainWindow(QWidget *parent = nullptr);
-  //  void set_provider(QString);
-  //  void set_useragent(QString);
-  //  void parseCommand(QCommandLineParser &);
   void parseCommand();
   ~MainWindow();
-  // QAction amazon();
   void setFullScreen(bool fullscreen);
   QWebEngineView *webView() const;
 
 private slots:
   // slots for handlers of hotkeys
   void finishLoading(bool);
-  void slotShortcutF11();
-  void slotShortcutCtrlQ();
-  void slotShortcutCtrlW();
-  void slotShortcutCtrlS();
-  void slotShortcutCtrlR();
-  void slotShortcutCtrlF5();
+  void toggleFullScreen();
+  void quit();
+  void reloadPage();
   void ShowContextMenu(const QPoint &pos);
 
 protected:
@@ -59,9 +52,6 @@ private:
   Ui::MainWindow *ui;
   QWebEngineView *webview;
   QString jQuery;
-
-  double playRate;
-  QString playRateStr;
 
   QSettings *stateSettings;
   QSettings *appSettings;

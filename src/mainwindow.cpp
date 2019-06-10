@@ -29,9 +29,6 @@ MainWindow::MainWindow(QWidget *parent)
   QWebEngineProfile::defaultProfile()->setPersistentCookiesPolicy(
       QWebEngineProfile::ForcePersistentCookies);
 
-  // set playbackrate and read jquery file
-  playRate = 1.0;
-  playRateStr = QString::number(playRate);
   QFile file;
   file.setFileName(":/jquery.min.js");
   file.open(QIODevice::ReadOnly);
@@ -101,7 +98,7 @@ MainWindow::~MainWindow() {
 }
 
 // Slot handler of F11
-void MainWindow::slotShortcutF11() {
+void MainWindow::toggleFullScreen() {
   /* This handler will make switching applications in full screen mode
    * and back to normal window mode
    * */
@@ -111,7 +108,7 @@ void MainWindow::slotShortcutF11() {
 QWebEngineView *MainWindow::webView() const { return webview; }
 
 // Slot handler for Ctrl + Q
-void MainWindow::slotShortcutCtrlQ() {
+void MainWindow::quit() {
   writeSettings();
   QApplication::quit();
 }
@@ -130,13 +127,11 @@ void MainWindow::addShortcut(const QString &actionName, const QString &key) {
 
 void MainWindow::registerShortcutActions() {
   m_actions["fullscreen-toggle"] =
-      std::function<void()>([&]() { this->slotShortcutF11(); });
+      std::function<void()>([&]() { this->toggleFullScreen(); });
   m_actions["fullscreen-toggle"] =
-      std::function<void()>([&]() { this->slotShortcutF11(); });
-  m_actions["reload"] =
-      std::function<void()>([&]() { this->slotShortcutCtrlF5(); });
-  m_actions["quit"] =
-      std::function<void()>([&]() { this->slotShortcutCtrlQ(); });
+      std::function<void()>([&]() { this->toggleFullScreen(); });
+  m_actions["reload"] = std::function<void()>([&]() { this->reloadPage(); });
+  m_actions["quit"] = std::function<void()>([&]() { this->quit(); });
   m_actions["speed-up"] = std::function<void()>([&]() {
     mpris->workWithPlayer(
         [](MprisPlayer &player) { emit(player.rateRequested(2)); });
@@ -213,80 +208,7 @@ void MainWindow::exchangeMprisInterfaceIfNeeded() {
   }
 }
 
-// Slot handler for Ctrl + W
-void MainWindow::slotShortcutCtrlW() {
-  QString getPlayer =
-      ("var netflix = document.getElementsByClassName('ellipsize-text')[0];");
-  webview->page()->runJavaScript(getPlayer);
-  if (playRate >= 2) {
-    return;
-  }
-  playRate += .1;
-  playRateStr = QString::number(playRate);
-  // QString code = QStringLiteral("qt.jQuery('video').get(0).playbackRate =")
-  QString code =
-      QStringLiteral("document.querySelector('video').playbackRate = ")
-          .append(playRateStr);
-  QString setSpeedText = QStringLiteral("var y = document.createTextNode('")
-                             .append(playRateStr)
-                             .append(" X');");
-
-  QString replaceText = ("netflix.replaceChild(y, netflix.childNodes[3])");
-  QString addTextToPlayer = ("netflix.appendChild(y);");
-  QString addTextCode = (setSpeedText + addTextToPlayer + replaceText);
-  qDebug() << "Player Speed set to: " << playRateStr;
-  webview->page()->runJavaScript(code);
-  webview->page()->runJavaScript(addTextCode);
-}
-
-// Slot handler for Ctrl + S
-void MainWindow::slotShortcutCtrlS() {
-
-  QString getPlayer =
-      ("var netflix = document.getElementsByClassName('ellipsize-text')[0];");
-  webview->page()->runJavaScript(getPlayer);
-  if (playRate < 0.2) {
-    return;
-  }
-  playRate -= .1;
-  playRateStr = QString::number(playRate);
-  QString code =
-      QStringLiteral("document.querySelector('video').playbackRate = ")
-          .append(playRateStr);
-  QString setSpeedText = QStringLiteral("var y = document.createTextNode('")
-                             .append(playRateStr)
-                             .append(" X');");
-
-  QString replaceText = ("netflix.replaceChild(y, netflix.childNodes[3])");
-  QString addTextToPlayer = ("netflix.appendChild(y);");
-  QString addTextCode = (setSpeedText + addTextToPlayer + replaceText);
-  qDebug() << "Player Speed set to: " << playRateStr;
-  webview->page()->runJavaScript(code);
-  webview->page()->runJavaScript(addTextCode);
-}
-
-// Slot handler for Ctrl + R
-void MainWindow::slotShortcutCtrlR() {
-  webview->page()->runJavaScript(jQuery);
-  if (playRate != 1.0) {
-    playRate = 1.0;
-    playRateStr = QString::number(playRate);
-    QString code = QStringLiteral("qt.jQuery('video').get(0).playbackRate =")
-                       .append(playRateStr);
-    QString setSpeedText = QStringLiteral("var y = document.createTextNode('")
-                               .append(playRateStr)
-                               .append(" X');");
-
-    QString replaceText = ("netflix.replaceChild(y, netflix.childNodes[3])");
-    QString addTextToPlayer = ("netflix.appendChild(y);");
-    QString addTextCode = (setSpeedText + addTextToPlayer + replaceText);
-    qDebug() << "Player Speed set to: " << playRateStr;
-    webview->page()->runJavaScript(code);
-    webview->page()->runJavaScript(addTextCode);
-  }
-}
-
-void MainWindow::slotShortcutCtrlF5() {
+void MainWindow::reloadPage() {
   webview->triggerPageAction(QWebEnginePage::ReloadAndBypassCache);
 }
 
