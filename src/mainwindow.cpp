@@ -61,20 +61,30 @@ MainWindow::MainWindow(QWidget *parent)
   connect(webview->page(), &QWebEnginePage::fullScreenRequested, this,
           &MainWindow::fullScreenRequested);
 
-  actions["fullscreen-toggle"] = std::make_pair(this, SLOT(slotShortcutF11()));
-  actions["quit"] = std::make_pair(this, SLOT(slotShortcutCtrlQ()));
-  actions["speed-up"] = std::make_pair(this, SLOT(slotShortcutCtrlW()));
-  actions["speed-down"] = std::make_pair(this, SLOT(slotShortcutCtrlS()));
-  actions["speed-default"] = std::make_pair(this, SLOT(slotShortcutCtrlR()));
-  actions["reload"] = std::make_pair(this, SLOT(slotShortcutCtrlF5()));
+  m_actions["fullscreen-toggle"] =
+      std::make_pair(this, SLOT(slotShortcutF11()));
+  m_actions["quit"] = std::make_pair(this, SLOT(slotShortcutCtrlQ()));
+  m_actions["speed-up"] = std::make_pair(this, SLOT(slotShortcutCtrlW()));
+  m_actions["speed-down"] = std::make_pair(this, SLOT(slotShortcutCtrlS()));
+  m_actions["speed-default"] = std::make_pair(this, SLOT(slotShortcutCtrlR()));
+  m_actions["reload"] = std::make_pair(this, SLOT(slotShortcutCtrlF5()));
 
   // default key shortcuts
-  registerShortcut("fullscreen-toggle", "F11");
-  registerShortcut("quit", "Ctrl+Q");
-  registerShortcut("speed-up", "Ctrl+W");
-  registerShortcut("speed-down", "Ctrl+S");
-  registerShortcut("speed-default", "Ctrl+R");
-  registerShortcut("reload", "Ctrl+F5");
+  addShortcut("fullscreen-toggle", "F11");
+  addShortcut("quit", "Ctrl+Q");
+  addShortcut("speed-up", "Ctrl+W");
+  addShortcut("speed-down", "Ctrl+S");
+  addShortcut("speed-default", "Ctrl+R");
+  addShortcut("reload", "Ctrl+F5");
+  appSettings->beginGroup("keybinds");
+  for (auto action : appSettings->allKeys()) {
+    auto keySequence = appSettings->value(action).toStringList().join(',');
+    for (auto key :
+         keySequence.split(QRegExp("\\s+"), QString::SkipEmptyParts)) {
+      addShortcut(action, key);
+    }
+  }
+  appSettings->endGroup();
 
   // Connect finished loading boolean
   connect(webview, &QWebEngineView::loadFinished, this,
@@ -93,7 +103,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow() {
   delete ui;
-  qDeleteAll(shortcuts);
+  // qDeleteAll(m_shortcuts);
 }
 
 // Slot handler of F11
@@ -114,37 +124,36 @@ void MainWindow::slotShortcutCtrlQ() {
 
 void MainWindow::finishLoading(bool) { exchangeMprisInterfaceIfNeeded(); }
 
-void MainWindow::registerShortcut(QString actionName, QString key) {
+void MainWindow::addShortcut(const QString &actionName, const QString &key) {
   qDebug() << "binding " << key << " -> " << actionName;
 
-  QShortcut *shortcut = shortcuts.value(key, nullptr);
-  if (!shortcut) {
-    shortcut = new QShortcut(key, this);
-    shortcuts[key] = shortcut;
-  } else {
-    disconnect(shortcut, SIGNAL(activated()), 0, 0);
+  QSet<const QShortcut *> &shortcuts = m_shortcuts[actionName];
+  auto shortcut = new QShortcut(key, this);
+  if (!shortcuts.contains(shortcut)) {
+    shortcuts.insert(shortcut);
   }
-  auto action = actions[actionName];
-  connect(shortcut, SIGNAL(activated()), action.first, action.second);
 }
 
-void MainWindow::registerMprisKeybinds() {
-  actions["play"] = std::make_pair(mpris.get(), SLOT(playVideo()));
-  actions["pause"] = std::make_pair(mpris.get(), SLOT(pauseVideo()));
-  actions["play-pause"] = std::make_pair(mpris.get(), SLOT(togglePlayPause()));
-  actions["next-episode"] = std::make_pair(mpris.get(), SLOT(goNextEpisode()));
-  actions["seek-next"] = std::make_pair(mpris.get(), SLOT(setSeek(10)));
-  actions["seek-prev"] = std::make_pair(mpris.get(), SLOT(setSeek(-10)));
+void MainWindow::registerMprisShortcutActions() {
+  m_actions["play"] = std::make_pair(mpris.get(), SLOT(playVideo()));
+  m_actions["pause"] = std::make_pair(mpris.get(), SLOT(pauseVideo()));
+  m_actions["play-pause"] =
+      std::make_pair(mpris.get(), SLOT(togglePlayPause()));
+  m_actions["next-episode"] =
+      std::make_pair(mpris.get(), SLOT(goNextEpisode()));
+  m_actions["seek-next"] = std::make_pair(mpris.get(), SLOT(setSeek(10)));
+  m_actions["seek-prev"] = std::make_pair(mpris.get(), SLOT(setSeek(-10)));
 
-  appSettings->beginGroup("keybinds");
-  for (auto action : appSettings->allKeys()) {
-    auto keySequence = appSettings->value(action).toStringList().join(',');
-    for (auto key :
-         keySequence.split(QRegExp("\\s+"), QString::SkipEmptyParts)) {
-      registerShortcut(action, key);
-    }
-  }
-  appSettings->endGroup();
+  qDebug() << "Rebinding keys because mprisChanged";
+  std::for_each(
+      m_shortcuts.begin(), m_shortcuts.end(),
+      [&](const std::pair<QString, QSet<const QShortcut *>> &shortcutDef) {
+        for (const auto &shortcut : shortcutDef.second) {
+          disconnect(shortcut, SIGNAL(activated()), 0, 0);
+          const auto &action = m_actions[shortcutDef.first];
+          connect(shortcut, SIGNAL(activated()), action.first, action.second);
+        }
+      });
 }
 
 void MainWindow::exchangeMprisInterfaceIfNeeded() {

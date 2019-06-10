@@ -13,6 +13,7 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QPair>
+#include <QSet>
 #include <QSettings>
 #include <QShortcut>
 #include <QWebEngineFullScreenRequest>
@@ -75,12 +76,12 @@ private:
   void readSettings();
   void restore();
   void exchangeMprisInterfaceIfNeeded();
-  void registerShortcut(QString, QString);
-  void registerMprisKeybinds();
+  void addShortcut(const QString &, const QString &);
+  void registerMprisShortcutActions();
   void createContextMenu(const QStringList &keys);
 
-  QMap<QString, std::pair<const QObject *, const char *>> actions;
-  QMap<QString, QShortcut *> shortcuts;
+  QMap<QString, std::pair<const QObject *, const char *>> m_actions;
+  std::map<QString, QSet<const QShortcut *>> m_shortcuts;
 
   UrlRequestInterceptor *m_interceptor;
 
@@ -97,7 +98,8 @@ private:
 
     mpris = std::make_unique<Interface>();
     mpris->setup(this);
-    registerMprisKeybinds();
+    registerMprisShortcutActions();
+
     return true;
   }
 };
