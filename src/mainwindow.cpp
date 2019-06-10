@@ -61,14 +61,6 @@ MainWindow::MainWindow(QWidget *parent)
   connect(webview->page(), &QWebEnginePage::fullScreenRequested, this,
           &MainWindow::fullScreenRequested);
 
-  m_actions["fullscreen-toggle"] =
-      std::make_pair(this, SLOT(slotShortcutF11()));
-  m_actions["quit"] = std::make_pair(this, SLOT(slotShortcutCtrlQ()));
-  m_actions["speed-up"] = std::make_pair(this, SLOT(slotShortcutCtrlW()));
-  m_actions["speed-down"] = std::make_pair(this, SLOT(slotShortcutCtrlS()));
-  m_actions["speed-default"] = std::make_pair(this, SLOT(slotShortcutCtrlR()));
-  m_actions["reload"] = std::make_pair(this, SLOT(slotShortcutCtrlF5()));
-
   // default key shortcuts
   addShortcut("fullscreen-toggle", "F11");
   addShortcut("quit", "Ctrl+Q");
@@ -76,6 +68,7 @@ MainWindow::MainWindow(QWidget *parent)
   addShortcut("speed-down", "Ctrl+S");
   addShortcut("speed-default", "Ctrl+R");
   addShortcut("reload", "Ctrl+F5");
+
   appSettings->beginGroup("keybinds");
   for (auto action : appSettings->allKeys()) {
     auto keySequence = appSettings->value(action).toStringList().join(',');
@@ -85,6 +78,7 @@ MainWindow::MainWindow(QWidget *parent)
     }
   }
   appSettings->endGroup();
+  registerShortcutActions();
 
   // Connect finished loading boolean
   connect(webview, &QWebEngineView::loadFinished, this,
@@ -125,7 +119,7 @@ void MainWindow::slotShortcutCtrlQ() {
 void MainWindow::finishLoading(bool) { exchangeMprisInterfaceIfNeeded(); }
 
 void MainWindow::addShortcut(const QString &actionName, const QString &key) {
-  qDebug() << "binding " << key << " -> " << actionName;
+  qDebug() << "binding " << key << "\t-> " << actionName;
 
   QSet<const QShortcut *> &shortcuts = m_shortcuts[actionName];
   auto shortcut = new QShortcut(key, this);
@@ -134,24 +128,65 @@ void MainWindow::addShortcut(const QString &actionName, const QString &key) {
   }
 }
 
-void MainWindow::registerMprisShortcutActions() {
-  m_actions["play"] = std::make_pair(mpris.get(), SLOT(playVideo()));
-  m_actions["pause"] = std::make_pair(mpris.get(), SLOT(pauseVideo()));
-  m_actions["play-pause"] =
-      std::make_pair(mpris.get(), SLOT(togglePlayPause()));
-  m_actions["next-episode"] =
-      std::make_pair(mpris.get(), SLOT(goNextEpisode()));
-  m_actions["seek-next"] = std::make_pair(mpris.get(), SLOT(setSeek(10)));
-  m_actions["seek-prev"] = std::make_pair(mpris.get(), SLOT(setSeek(-10)));
+void MainWindow::registerShortcutActions() {
+  m_actions["fullscreen-toggle"] =
+      std::function<void()>([&]() { this->slotShortcutF11(); });
+  m_actions["fullscreen-toggle"] =
+      std::function<void()>([&]() { this->slotShortcutF11(); });
+  m_actions["reload"] =
+      std::function<void()>([&]() { this->slotShortcutCtrlF5(); });
+  m_actions["quit"] =
+      std::function<void()>([&]() { this->slotShortcutCtrlQ(); });
+  m_actions["speed-up"] = std::function<void()>([&]() {
+    mpris->workWithPlayer(
+        [](MprisPlayer &player) { emit(player.rateRequested(2)); });
+  });
+  m_actions["speed-down"] = std::function<void()>([&]() {
+    mpris->workWithPlayer(
+        [](MprisPlayer &player) { emit(player.rateRequested(0.5)); });
+  });
+  m_actions["speed-default"] = std::function<void()>([&]() {
+    mpris->workWithPlayer(
+        [](MprisPlayer &player) { emit(player.rateRequested(1)); });
+  });
+  m_actions["play"] = std::function<void()>([&]() {
+    mpris->workWithPlayer(
+        [](MprisPlayer &player) { emit(player.playRequested()); });
+  });
+  m_actions["pause"] = std::function<void()>([&]() {
+    mpris->workWithPlayer(
+        [](MprisPlayer &player) { emit(player.pauseRequested()); });
+  });
+  m_actions["play-pause"] = std::function<void()>([&]() {
+    mpris->workWithPlayer(
+        [](MprisPlayer &player) { emit(player.playPauseRequested()); });
+  });
+  m_actions["prev-episode"] = std::function<void()>([&]() {
+    mpris->workWithPlayer(
+        [](MprisPlayer &player) { emit(player.previousRequested()); });
+  });
+  m_actions["next-episode"] = std::function<void()>([&]() {
+    mpris->workWithPlayer(
+        [](MprisPlayer &player) { emit(player.nextRequested()); });
+  });
+  m_actions["seek-next"] = std::function<void()>([&]() {
+    mpris->workWithPlayer([](MprisPlayer &player) {
+      emit(player.seekRequested(10 * 1000 * 1000));
+    });
+  });
+  m_actions["seek-prev"] = std::function<void()>([&]() {
+    mpris->workWithPlayer([](MprisPlayer &player) {
+      emit(player.seekRequested(-10 * 1000 * 1000));
+    });
+  });
 
-  qDebug() << "Rebinding keys because mprisChanged";
   std::for_each(
       m_shortcuts.begin(), m_shortcuts.end(),
       [&](const std::pair<QString, QSet<const QShortcut *>> &shortcutDef) {
         for (const auto &shortcut : shortcutDef.second) {
           disconnect(shortcut, SIGNAL(activated()), 0, 0);
-          const auto &action = m_actions[shortcutDef.first];
-          connect(shortcut, SIGNAL(activated()), action.first, action.second);
+          connect(shortcut, &QShortcut::activated,
+                  m_actions[shortcutDef.first]);
         }
       });
 }

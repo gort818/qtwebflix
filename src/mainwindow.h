@@ -77,10 +77,11 @@ private:
   void restore();
   void exchangeMprisInterfaceIfNeeded();
   void addShortcut(const QString &, const QString &);
-  void registerMprisShortcutActions();
+  void registerShortcutActions();
   void createContextMenu(const QStringList &keys);
 
-  QMap<QString, std::pair<const QObject *, const char *>> m_actions;
+  // QMap<QString, std::pair<const QObject *, const char *>> m_actions;
+  QMap<QString, std::function<void()>> m_actions;
   std::map<QString, QSet<const QShortcut *>> m_shortcuts;
 
   UrlRequestInterceptor *m_interceptor;
@@ -98,7 +99,6 @@ private:
 
     mpris = std::make_unique<Interface>();
     mpris->setup(this);
-    registerMprisShortcutActions();
 
     return true;
   }
