@@ -13,8 +13,9 @@
 int main(int argc, char *argv[]) {
 
   QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+  QApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
   QApplication app(argc, argv);
-   QApplication::setWindowIcon(QIcon(":/resources/qtwebflix.svg"));
+  QApplication::setWindowIcon(QIcon(":/resources/qtwebflix.svg"));
 
 
   MainWindow w;
