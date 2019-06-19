@@ -1,6 +1,5 @@
 #include <QContextMenuEvent>
 #include <QDebug>
-#include <QMenu>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QWebEngineFullScreenRequest>
@@ -21,15 +20,15 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow),
-      mprisType(typeid(DefaultMprisInterface)), mpris(new DefaultMprisInterface) {
+      mprisType(typeid(DefaultMprisInterface)),
+      mpris(new DefaultMprisInterface) {
   QWebEngineSettings::globalSettings()->setAttribute(
       QWebEngineSettings::PluginsEnabled, true);
-  appSettings = new QSettings("Qtwebflix", "Save State", this);
-  QWebEngineProfile::defaultProfile()->setPersistentCookiesPolicy(QWebEngineProfile::ForcePersistentCookies);
+  stateSettings = new QSettings("Qtwebflix", "Save State", this);
+  appSettings = new QSettings("Qtwebflix", "qtwebflix", this);
+  QWebEngineProfile::defaultProfile()->setPersistentCookiesPolicy(
+      QWebEngineProfile::ForcePersistentCookies);
 
-  // set playbackrate and read jquery file
-  playRate = 1.0;
-  playRateStr = QString::number(playRate);
   QFile file;
   file.setFileName(":/jquery.min.js");
   file.open(QIODevice::ReadOnly);
@@ -46,7 +45,7 @@ MainWindow::MainWindow(QWidget *parent)
   if (appSettings->value("site").toString() == "") {
     webview->setUrl(QUrl(QStringLiteral("https://netflix.com")));
   } else {
-    webview->setUrl(QUrl(appSettings->value("site").toString()));
+    webview->setUrl(QUrl(stateSettings->value("site").toString()));
   }
   webview->settings()->setAttribute(
       QWebEngineSettings::FullScreenSupportEnabled, true);
@@ -59,40 +58,24 @@ MainWindow::MainWindow(QWidget *parent)
   connect(webview->page(), &QWebEnginePage::fullScreenRequested, this,
           &MainWindow::fullScreenRequested);
 
+  // default key shortcuts
+  addShortcut("fullscreen-toggle", "F11");
+  addShortcut("quit", "Ctrl+Q");
+  addShortcut("speed-up", "Ctrl+W");
+  addShortcut("speed-down", "Ctrl+S");
+  addShortcut("speed-default", "Ctrl+R");
+  addShortcut("reload", "Ctrl+F5");
 
-  // key short cuts
-
-  // F11
-  keyF11 = new QShortcut(this); // Initialize the object
-  keyF11->setKey(Qt::Key_F11);  // Set the key code
-  // connect handler to keypress
-  connect(keyF11, SIGNAL(activated()), this, SLOT(slotShortcutF11()));
-
-  // Ctrl + Q
-  keyCtrlQ = new QShortcut(this);         // Initialize the object
-  keyCtrlQ->setKey(Qt::CTRL + Qt::Key_Q); // Set the key code
-  // connect handler to keypress
-  connect(keyCtrlQ, SIGNAL(activated()), this, SLOT(slotShortcutCtrlQ()));
-
-  // Ctrl + W
-  keyCtrlW = new QShortcut(this);
-  keyCtrlW->setKey(Qt::CTRL + Qt::Key_W); // Set the key code
-  connect(keyCtrlW, SIGNAL(activated()), this, SLOT(slotShortcutCtrlW()));
-
-  // Ctrl + S
-  keyCtrlS = new QShortcut(this);
-  keyCtrlS->setKey(Qt::CTRL + Qt::Key_S); // Set the key code
-  connect(keyCtrlS, SIGNAL(activated()), this, SLOT(slotShortcutCtrlS()));
-
-  // Ctrl + R
-  keyCtrlR = new QShortcut(this);
-  keyCtrlR->setKey(Qt::CTRL + Qt::Key_R); // Set the key code
-  connect(keyCtrlR, SIGNAL(activated()), this, SLOT(slotShortcutCtrlR()));
-
-  // Ctrl + F5
-  keyCtrlF5 = new QShortcut(this);
-  keyCtrlF5->setKey(Qt::CTRL + Qt::Key_F5); // Set the key code
-  connect(keyCtrlF5, SIGNAL(activated()), this, SLOT(slotShortcutCtrlF5()));
+  appSettings->beginGroup("keybinds");
+  for (auto action : appSettings->allKeys()) {
+    auto keySequence = appSettings->value(action).toStringList().join(',');
+    for (auto key :
+         keySequence.split(QRegExp("\\s+"), QString::SkipEmptyParts)) {
+      addShortcut(action, key);
+    }
+  }
+  appSettings->endGroup();
+  registerShortcutActions();
 
   // Connect finished loading boolean
   connect(webview, &QWebEngineView::loadFinished, this,
@@ -109,10 +92,13 @@ MainWindow::MainWindow(QWidget *parent)
   mpris->setup(this);
 }
 
-MainWindow::~MainWindow() { delete ui; }
+MainWindow::~MainWindow() {
+  delete ui;
+  // qDeleteAll(m_shortcuts);
+}
 
 // Slot handler of F11
-void MainWindow::slotShortcutF11() {
+void MainWindow::toggleFullScreen() {
   /* This handler will make switching applications in full screen mode
    * and back to normal window mode
    * */
@@ -122,25 +108,99 @@ void MainWindow::slotShortcutF11() {
 QWebEngineView *MainWindow::webView() const { return webview; }
 
 // Slot handler for Ctrl + Q
-void MainWindow::slotShortcutCtrlQ() {
+void MainWindow::quit() {
   writeSettings();
   QApplication::quit();
 }
 
 void MainWindow::finishLoading(bool) { exchangeMprisInterfaceIfNeeded(); }
 
+void MainWindow::addShortcut(const QString &actionName, const QString &key) {
+  qDebug() << "binding " << key << "\t-> " << actionName;
+
+  QSet<const QShortcut *> &shortcuts = m_shortcuts[actionName];
+  auto shortcut = new QShortcut(key, this);
+  if (!shortcuts.contains(shortcut)) {
+    shortcuts.insert(shortcut);
+  }
+}
+
+void MainWindow::registerShortcutActions() {
+  m_actions["fullscreen-toggle"] =
+      std::function<void()>([&]() { this->toggleFullScreen(); });
+  m_actions["fullscreen-toggle"] =
+      std::function<void()>([&]() { this->toggleFullScreen(); });
+  m_actions["reload"] = std::function<void()>([&]() { this->reloadPage(); });
+  m_actions["quit"] = std::function<void()>([&]() { this->quit(); });
+  m_actions["speed-up"] = std::function<void()>([&]() {
+    mpris->workWithPlayer(
+        [](MprisPlayer &player) { emit(player.rateRequested(2)); });
+  });
+  m_actions["speed-down"] = std::function<void()>([&]() {
+    mpris->workWithPlayer(
+        [](MprisPlayer &player) { emit(player.rateRequested(0.5)); });
+  });
+  m_actions["speed-default"] = std::function<void()>([&]() {
+    mpris->workWithPlayer(
+        [](MprisPlayer &player) { emit(player.rateRequested(1)); });
+  });
+  m_actions["play"] = std::function<void()>([&]() {
+    mpris->workWithPlayer(
+        [](MprisPlayer &player) { emit(player.playRequested()); });
+  });
+  m_actions["pause"] = std::function<void()>([&]() {
+    mpris->workWithPlayer(
+        [](MprisPlayer &player) { emit(player.pauseRequested()); });
+  });
+  m_actions["play-pause"] = std::function<void()>([&]() {
+    mpris->workWithPlayer(
+        [](MprisPlayer &player) { emit(player.playPauseRequested()); });
+  });
+  m_actions["prev-episode"] = std::function<void()>([&]() {
+    mpris->workWithPlayer(
+        [](MprisPlayer &player) { emit(player.previousRequested()); });
+  });
+  m_actions["next-episode"] = std::function<void()>([&]() {
+    mpris->workWithPlayer(
+        [](MprisPlayer &player) { emit(player.nextRequested()); });
+  });
+  m_actions["seek-next"] = std::function<void()>([&]() {
+    mpris->workWithPlayer([](MprisPlayer &player) {
+      emit(player.seekRequested(10 * 1000 * 1000));
+    });
+  });
+  m_actions["seek-prev"] = std::function<void()>([&]() {
+    mpris->workWithPlayer([](MprisPlayer &player) {
+      emit(player.seekRequested(-10 * 1000 * 1000));
+    });
+  });
+
+  std::for_each(
+      m_shortcuts.begin(), m_shortcuts.end(),
+      [&](const std::pair<QString, QSet<const QShortcut *>> &shortcutDef) {
+        for (const auto &shortcut : shortcutDef.second) {
+          disconnect(shortcut, SIGNAL(activated()), 0, 0);
+          connect(shortcut, &QShortcut::activated,
+                  m_actions[shortcutDef.first]);
+        }
+      });
+}
+
 void MainWindow::exchangeMprisInterfaceIfNeeded() {
   QString hostname = webview->url().host();
   if (hostname.endsWith("netflix.com")) {
     setMprisInterface<NetflixMprisInterface>();
   } else if (hostname.endsWith("amazon.com")) {
-      //use javascript to change useragent to watch HD Amazon Prime Videos as using QT crashes the program.
-      QString code = "window.navigator.__defineGetter__('userAgent', function () {"
-                  "return 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.84 Safari/537.36 OPR/55.0.2994.34 (Edition beta)';"
-              "});";
+    // use javascript to change useragent to watch HD Amazon Prime Videos as
+    // using QT crashes the program.
+    QString code =
+        "window.navigator.__defineGetter__('userAgent', function () {"
+        "return 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/68.0.3440.84 Safari/537.36 "
+        "OPR/55.0.2994.34 (Edition beta)';"
+        "});";
 
-
-        webView()->page()->runJavaScript(code);
+    webView()->page()->runJavaScript(code);
 
     setMprisInterface<AmazonMprisInterface>();
   } else {
@@ -148,80 +208,7 @@ void MainWindow::exchangeMprisInterfaceIfNeeded() {
   }
 }
 
-// Slot handler for Ctrl + W
-void MainWindow::slotShortcutCtrlW() {
-  QString getPlayer =
-      ("var netflix = document.getElementsByClassName('ellipsize-text')[0];");
-  webview->page()->runJavaScript(getPlayer);
-  if (playRate >= 2) {
-    return;
-  }
-  playRate += .1;
-  playRateStr = QString::number(playRate);
-  // QString code = QStringLiteral("qt.jQuery('video').get(0).playbackRate =")
-  QString code =
-      QStringLiteral("document.querySelector('video').playbackRate = ")
-          .append(playRateStr);
-  QString setSpeedText = QStringLiteral("var y = document.createTextNode('")
-                             .append(playRateStr)
-                             .append(" X');");
-
-  QString replaceText = ("netflix.replaceChild(y, netflix.childNodes[3])");
-  QString addTextToPlayer = ("netflix.appendChild(y);");
-  QString addTextCode = (setSpeedText + addTextToPlayer + replaceText);
-  qDebug() << "Player Speed set to: " << playRateStr;
-  webview->page()->runJavaScript(code);
-  webview->page()->runJavaScript(addTextCode);
-}
-
-// Slot handler for Ctrl + S
-void MainWindow::slotShortcutCtrlS() {
-
-  QString getPlayer =
-      ("var netflix = document.getElementsByClassName('ellipsize-text')[0];");
-  webview->page()->runJavaScript(getPlayer);
-  if (playRate < 0.2) {
-    return;
-  }
-  playRate -= .1;
-  playRateStr = QString::number(playRate);
-  QString code =
-      QStringLiteral("document.querySelector('video').playbackRate = ")
-          .append(playRateStr);
-  QString setSpeedText = QStringLiteral("var y = document.createTextNode('")
-                             .append(playRateStr)
-                             .append(" X');");
-
-  QString replaceText = ("netflix.replaceChild(y, netflix.childNodes[3])");
-  QString addTextToPlayer = ("netflix.appendChild(y);");
-  QString addTextCode = (setSpeedText + addTextToPlayer + replaceText);
-  qDebug() << "Player Speed set to: " << playRateStr;
-  webview->page()->runJavaScript(code);
-  webview->page()->runJavaScript(addTextCode);
-}
-
-// Slot handler for Ctrl + R
-void MainWindow::slotShortcutCtrlR() {
-  webview->page()->runJavaScript(jQuery);
-  if (playRate != 1.0) {
-    playRate = 1.0;
-    playRateStr = QString::number(playRate);
-    QString code = QStringLiteral("qt.jQuery('video').get(0).playbackRate =")
-                       .append(playRateStr);
-    QString setSpeedText = QStringLiteral("var y = document.createTextNode('")
-                               .append(playRateStr)
-                               .append(" X');");
-
-    QString replaceText = ("netflix.replaceChild(y, netflix.childNodes[3])");
-    QString addTextToPlayer = ("netflix.appendChild(y);");
-    QString addTextCode = (setSpeedText + addTextToPlayer + replaceText);
-    qDebug() << "Player Speed set to: " << playRateStr;
-    webview->page()->runJavaScript(code);
-    webview->page()->runJavaScript(addTextCode);
-  }
-}
-
-void MainWindow::slotShortcutCtrlF5() {
+void MainWindow::reloadPage() {
   webview->triggerPageAction(QWebEnginePage::ReloadAndBypassCache);
 }
 
@@ -241,26 +228,56 @@ void MainWindow::closeEvent(QCloseEvent *) {
 
 void MainWindow::writeSettings() {
   // Write the values to disk in categories.
-  appSettings->setValue("state/mainWindowState", saveState());
-  appSettings->setValue("geometry/mainWindowGeometry", saveGeometry());
+  stateSettings->setValue("state/mainWindowState", saveState());
+  stateSettings->setValue("geometry/mainWindowGeometry", saveGeometry());
   QString site = webview->url().toString();
-  appSettings->setValue("site", site);
+  stateSettings->setValue("site", site);
   qDebug() << " write settings:" << site;
 }
 
 void MainWindow::restore() {
 
   QByteArray stateData =
-      appSettings->value("state/mainWindowState").toByteArray();
+      stateSettings->value("state/mainWindowState").toByteArray();
 
   QByteArray geometryData =
-      appSettings->value("geometry/mainWindowGeometry").toByteArray();
+      stateSettings->value("geometry/mainWindowGeometry").toByteArray();
 
   restoreState(stateData);
   restoreGeometry(geometryData);
 }
 
-void MainWindow::readSettings() { restore(); }
+void MainWindow::createContextMenu(const QStringList &keys) {
+  appSettings->beginGroup("providers");
+  for (const auto &i : keys) {
+    if (!i.startsWith("#")) {
+      auto url = appSettings->value(i).toUrl();
+      contextMenu.addAction(i, [this, url]() {
+        qDebug() << "Switching to : " << url;
+        webview->setUrl(QUrl(url));
+      });
+      contextMenu.addSeparator();
+    }
+  }
+  appSettings->endGroup();
+}
+
+void MainWindow::readSettings() {
+  appSettings->beginGroup("providers");
+  QStringList providers = appSettings->allKeys();
+
+  // Check if config file exists,if not create a default key.
+  if (!providers.size()) {
+    qDebug() << "Config file does not exist, creating default";
+    appSettings->setValue("netflix", "http://netflix.com");
+    appSettings->sync();
+    providers = appSettings->allKeys();
+  }
+  appSettings->endGroup();
+  createContextMenu(providers);
+
+  restore();
+}
 
 void MainWindow::fullScreenRequested(QWebEngineFullScreenRequest request) {
 
@@ -277,48 +294,8 @@ void MainWindow::fullScreenRequested(QWebEngineFullScreenRequest request) {
 
 void MainWindow::ShowContextMenu(const QPoint &pos) // this is a slot
 {
-
   QPoint globalPos = webview->mapToGlobal(pos);
-  provSettings = new QSettings("Qtwebflix", "Providers", this);
-  provSettings->setIniCodec("UTF-8");
-  provSettings->beginGroup("providers");
-  QString conf(provSettings->fileName());
-
-  // Check if config file exists,if not create a default key.
-  if (!QFile::exists(conf))
-
-  {
-    qDebug() << "Config file does not exist, creating default";
-    provSettings->setValue("netflix", "http://netflix.com");
-    provSettings->sync();
-  }
-
-  QStringList keys = provSettings->allKeys();
-
-  QMenu myMenu;
-  for (const auto &i : keys) {
-    // qDebug() << "keys" << i;
-
-    if (!i.startsWith("#")) {
-      myMenu.addAction(i);
-      myMenu.addSeparator();
-    }
-  }
-
-  QAction *selectedItem = myMenu.exec(globalPos);
-
-  if (selectedItem == nullptr) {
-    return;
-  } else if (selectedItem) {
-    QString url = provSettings->value(selectedItem->text()).toString();
-    qDebug() << "URL is :" << url;
-    webview->setUrl(QUrl(url));
-    provSettings->endGroup();
-  }
-
-  else {
-    // nothing was chosen
-  }
+  contextMenu.exec(globalPos);
 }
 
 void MainWindow::parseCommand() {

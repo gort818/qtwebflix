@@ -1,12 +1,12 @@
 #ifndef MPRISINTERFACE_H
 #define MPRISINTERFACE_H
 
-#include <mutex>
 #include <functional>
+#include <mutex>
 
-#include <QWebEngineView>
 #include <Mpris>
 #include <MprisPlayer>
+#include <QWebEngineView>
 
 class MainWindow;
 
@@ -22,15 +22,16 @@ public:
   void updatePlayerFullScreen();
 
 protected:
-  void workWithPlayer(std::function<void(MprisPlayer&)> callback);
-  MainWindow * window() const;
-  QWebEngineView * webView() const;
+  void workWithPlayer(std::function<void(MprisPlayer &)> callback);
+  MainWindow *window() const;
+  QWebEngineView *webView() const;
+
+  friend class MainWindow;
 
 private:
   MainWindow *m_window;
   std::mutex m_mtx_player;
   MprisPlayer m_player;
-
 };
 
 #endif // MPRISINTERFACE_H
