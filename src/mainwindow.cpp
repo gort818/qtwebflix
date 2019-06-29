@@ -279,7 +279,7 @@ void MainWindow::ShowContextMenu(const QPoint &pos) // this is a slot
 {
 
   QPoint globalPos = webview->mapToGlobal(pos);
-  provSettings = new QSettings("Qtwebflix", "Providers", this);
+  provSettings = new QSettings("Qtwebflix", "providers", this);
   provSettings->setIniCodec("UTF-8");
   provSettings->beginGroup("providers");
   QString conf(provSettings->fileName());
