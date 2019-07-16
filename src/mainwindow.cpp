@@ -46,7 +46,7 @@ MainWindow::MainWindow(QWidget *parent)
   if (appSettings->value("site").toString() == "") {
     webview->setUrl(QUrl(QStringLiteral("https://netflix.com")));
   } else {
-    webview->setUrl(QUrl(appSettings->value("site").toString()));
+    webview->setUrl(appSettings->value("site").toString());
   }
   webview->settings()->setAttribute(
       QWebEngineSettings::FullScreenSupportEnabled, true);
@@ -246,6 +246,14 @@ void MainWindow::writeSettings() {
   QString site = webview->url().toString();
   appSettings->setValue("site", site);
   qDebug() << " write settings:" << site;
+  QString hostname = webview->url().host();
+  //Resuming  netflix video causes qtwebflix to hang, write to default homepage
+  if (hostname.endsWith("netflix.com")){
+  appSettings->setValue("site", "https://netflix.com/browse");
+  }
+   else{
+      webview->setUrl(appSettings->value("site").toString());
+  }
 }
 
 void MainWindow::restore() {
@@ -343,7 +351,7 @@ void MainWindow::parseCommand() {
   }
   if (!parser.nonHDisSet()) {
     this->m_interceptor = new UrlRequestInterceptor;
-    this->webview->page()->profile()->setRequestInterceptor(
+    this->webview->page()->profile()->setUrlRequestInterceptor(
         this->m_interceptor);
   }
 }
