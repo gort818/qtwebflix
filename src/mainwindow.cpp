@@ -24,6 +24,8 @@ MainWindow::MainWindow(QWidget *parent)
       mprisType(typeid(DefaultMprisInterface)), mpris(new DefaultMprisInterface) {
   QWebEngineSettings::globalSettings()->setAttribute(
       QWebEngineSettings::PluginsEnabled, true);
+  QWebEngineSettings::globalSettings()->setAttribute(
+      QWebEngineSettings::LocalContentCanAccessRemoteUrls, true);
   appSettings = new QSettings("Qtwebflix", "save_state", this);
   QWebEngineProfile::defaultProfile()->setPersistentCookiesPolicy(QWebEngineProfile::ForcePersistentCookies);
 
@@ -50,6 +52,9 @@ MainWindow::MainWindow(QWidget *parent)
   }
   webview->settings()->setAttribute(
       QWebEngineSettings::FullScreenSupportEnabled, true);
+
+
+
 // Check for QT if equal or greater than 5.10 hide scrollbars
 #if HAS_SCROLLBAR
   webview->settings()->setAttribute(QWebEngineSettings::ShowScrollBars, false);
