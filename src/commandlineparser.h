@@ -6,13 +6,11 @@
 class Commandlineparser {
 public:
   Commandlineparser();
-
   QString getProvider() const;
   QString getUserAgent() const;
   bool providerIsSet() const;
   bool userAgentisSet() const;
   bool nonHDisSet() const;
-
 private:
   QString provider_;
   QString userAgent_;
