@@ -10,6 +10,10 @@ A Qt webengine browser application to watch Netflix and other streaming services
  
 ![kdeconnect-screenshot](https://i.imgur.com/m0NMzOK.png)
 
+**NOTE: AS OF JULY 26 QtWebFlix can no longer stream netlifx in 1080! :( Thanks Netlifx**
+
+**If anyone can help please feel free**
+
 ## Usage
 
 ```
@@ -44,7 +48,7 @@ Example of playback rate visualizer.
 
 **As of March 30th 2018:**
 
-* Now supports Netflix in 1080P. NOTE not all shows and movies will work!
+~~* Now supports Netflix in 1080P. NOTE not all shows and movies will work!~~
 * Also supports adding other streaming services. Go to `~/.config/Qtwebflix/Providers.conf` and add your service. Example:
        
        Netflix=https://netflix.com
