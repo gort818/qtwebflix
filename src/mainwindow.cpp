@@ -94,6 +94,8 @@ MainWindow::MainWindow(QWidget *parent)
   keyCtrlF5->setKey(Qt::CTRL + Qt::Key_F5); // Set the key code
   connect(keyCtrlF5, SIGNAL(activated()), this, SLOT(slotShortcutCtrlF5()));
 
+  this->webview->page()->profile()->setHttpUserAgent("Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101 Firefox/68.0");
+
   // Connect finished loading boolean
   connect(webview, &QWebEngineView::loadFinished, this,
           &MainWindow::finishLoading);
@@ -132,6 +134,7 @@ void MainWindow::finishLoading(bool) { exchangeMprisInterfaceIfNeeded(); }
 void MainWindow::exchangeMprisInterfaceIfNeeded() {
   QString hostname = webview->url().host();
   if (hostname.endsWith("netflix.com")) {
+      //this->webview->page()->profile()->setHttpUserAgent("Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101 Firefox/68.0");
     setMprisInterface<NetflixMprisInterface>();
   } else if (hostname.endsWith("amazon.com")) {
       //use javascript to change useragent to watch HD Amazon Prime Videos as using QT crashes the program.
