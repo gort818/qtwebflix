@@ -11,7 +11,7 @@
 //#include <KAboutData>
 
 int main(int argc, char *argv[]) {
-
+  qputenv("QTWEBENGINE_CHROMIUM_FLAGS", "--disable-features=MediaSessionService");
   QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
   QApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
   QApplication app(argc, argv);

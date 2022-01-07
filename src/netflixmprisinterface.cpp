@@ -27,6 +27,7 @@ void NetflixMprisInterface::setup(MainWindow *window) {
     p.setCanControl(true);
     p.setCanSeek(true);
     p.setMetadata(QVariantMap());
+    p.setIdentity("qtwebflix -- netflix");
 
     connect(&p, SIGNAL(pauseRequested()), this, SLOT(pauseVideo()));
     connect(&p, SIGNAL(playRequested()), this, SLOT(playVideo()));
@@ -55,7 +56,7 @@ void NetflixMprisInterface::setup(MainWindow *window) {
   playerPositionTimer.start(170);
 
   connect(&metadataTimer, SIGNAL(timeout()), this, SLOT(metadataTimerFired()));
-  metadataTimer.start(1000);
+  metadataTimer.start(200);
 
   connect(&volumeTimer, SIGNAL(timeout()), this, SLOT(volumeTimerFired()));
   volumeTimer.start(220);
@@ -219,8 +220,8 @@ void NetflixMprisInterface::getMetadata(
     else
       seconds /= 1e-6;
 
-    QString title = map["title"].toString();
     QString nid = map["nid"].toString();
+    QString title = "Netflix title: "+ nid;
 
     callback(seconds, title, nid);
   });
@@ -368,3 +369,4 @@ void NetflixMprisInterface::goNextTimerFired() {
     }
   });
 }
+

@@ -13,6 +13,7 @@ void MprisInterface::setup(MainWindow *window) {
  //testing setting service name in the seperate interfaces
   workWithPlayer([] (MprisPlayer& p) {
     p.setServiceName("QtWebFlix");
+    p.setIdentity("QtWebFlix");
   });
 }
 
