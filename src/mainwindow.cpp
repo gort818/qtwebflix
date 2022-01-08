@@ -354,10 +354,10 @@ void MainWindow::parseCommand() {
     this->webview->page()->profile()->setHttpUserAgent(parser.getUserAgent());
   }
   if (!parser.nonHDisSet()) {
-      qDebug() <<"1080p NEFLIX NO LONGER WORKS!";
- //   NO LONGER WORKING!!!!!!!!DAMN YOU NETFLIX
-//    this->m_interceptor = new UrlRequestInterceptor;
-//    this->webview->page()->profile()->setUrlRequestInterceptor(
-//        this->m_interceptor);
+   //   qDebug() <<"1080p NEFLIX NO LONGER WORKS!";
+   //NO LONGER WORKING!!!!!!!!DAMN YOU NETFLIX
+   this->m_interceptor = new UrlRequestInterceptor;
+   this->webview->page()->profile()->setUrlRequestInterceptor(
+       this->m_interceptor);
   }
 }

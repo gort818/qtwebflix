@@ -21,6 +21,6 @@ void UrlRequestInterceptor::interceptRequest(QWebEngineUrlRequestInfo &info)
             // old playercore still works but a lot fo shows no longer play in 1080
             //info.redirect(QUrl("https://rawcdn.githack.com/gort818/netflix-1080p/a225d19994546396f252a169704e2bde43e5ff7d/playercore-481.js"));
             //new playercore (ctrl + alt + shift + s no longer working
-            info.redirect(QUrl("https://rawcdn.githack.com/gort818/netflix-1080p/15c20e1d1880cc19414840d413e940c34b1bb438/playercore-6.0011.853.051.js"));
+            info.redirect(QUrl("https://rawcdn.githack.com/gort818/netflix-1080p/556ae9660864867a767a2dc06e1f6548a513bfa6/cadmium-playercore-6.0033.414.911-1080p.js"));
     }
 }

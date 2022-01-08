@@ -10,9 +10,7 @@ A Qt webengine browser application to watch Netflix and other streaming services
  
 ![kdeconnect-screenshot](https://i.imgur.com/m0NMzOK.png)
 
-**NOTE: AS OF JULY 26 QtWebFlix can no longer stream netlifx in 1080! :( Thanks Netlifx**
 
-**If anyone can help please feel free**
 
 ## Usage
 
@@ -45,6 +43,15 @@ Example of playback rate visualizer.
 ![playback-rate-screenshot](https://i.imgur.com/B26CloV.png)
 
 ## News
+
+**January 7th 2022**
+
+*Netflix 1080p is working for now!
+
+**July 26TH 2019:**
+
+* Netflix 1080p no longer working
+
 
 **As of March 30th 2018:**
 
