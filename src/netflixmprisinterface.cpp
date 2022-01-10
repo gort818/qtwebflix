@@ -29,7 +29,7 @@ void NetflixMprisInterface::setup(MainWindow *window) {
     p.canSeek();
     p.canSeekChanged();
     p.setMetadata(QVariantMap());
-    p.setIdentity("qtwebflix -- netflix");
+    p.setIdentity("Qtwebflix -- Netflix");
 
     connect(&p, SIGNAL(pauseRequested()), this, SLOT(pauseVideo()));
     connect(&p, SIGNAL(playRequested()), this, SLOT(playVideo()));
