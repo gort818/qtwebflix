@@ -26,6 +26,8 @@ void NetflixMprisInterface::setup(MainWindow *window) {
     p.setCanPlay(true);
     p.setCanControl(true);
     p.setCanSeek(true);
+    p.canSeek();
+    p.canSeekChanged();
     p.setMetadata(QVariantMap());
     p.setIdentity("qtwebflix -- netflix");
 
@@ -220,7 +222,6 @@ void NetflixMprisInterface::getMetadata(
       seconds /= 1e-6;
 
     QString nid = map["nid"].toString();
-    qDebug() << map["title"].toString() << "\n";
     if (map["title"].toString() != "") {
       QString title = map["title"].toString();
       map["title"] = title;
