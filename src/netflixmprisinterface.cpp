@@ -200,9 +200,8 @@ void NetflixMprisInterface::getMetadata(
   QString code =
       ("(function () {"
        "var vid = document.querySelector('video');"
-       "var titleLabel = "
-       "document.querySelector('.PlayerControls--control-element.video-title "
-       ".ellipsize-text');"
+       "const titleLabel = "
+       "document.querySelectorAll(\"[data-uia='video-title']\")[0];"
        "var metadata = {};"
        "metadata.duration = vid ? vid.duration : -1;"
        "metadata.title = titleLabel ? "
@@ -221,9 +220,12 @@ void NetflixMprisInterface::getMetadata(
       seconds /= 1e-6;
 
     QString nid = map["nid"].toString();
-    QString title = "Netflix title: "+ nid;
-
-    callback(seconds, title, nid);
+    qDebug() << map["title"].toString() << "\n";
+    if (map["title"].toString() != "") {
+      QString title = map["title"].toString();
+      map["title"] = title;
+      callback(seconds, title, nid);
+    }
   });
 }
 
@@ -369,4 +371,3 @@ void NetflixMprisInterface::goNextTimerFired() {
     }
   });
 }
-
