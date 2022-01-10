@@ -46,9 +46,9 @@ Example of playback rate visualizer.
 
 **January 7th 2022**
 
-*Netflix 1080p is working for now!
+* Netflix 1080p is working for now!
 
-**July 26TH 2019:**
+**July 26th 2019:**
 
 * Netflix 1080p no longer working
 
