@@ -56,7 +56,7 @@ Example of playback rate visualizer.
 **As of March 30th 2018:**
 
 ~~* Now supports Netflix in 1080P. NOTE not all shows and movies will work!~~
-* Also supports adding other streaming services. Go to `~/.config/Qtwebflix/Providers.conf` and add your service. Example:
+* Also supports adding other streaming services. Go to `~/.config/Qtwebflix/providers.conf` and add your service. Example:
        
        Netflix=https://netflix.com
 
